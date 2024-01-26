@@ -1,2 +1,2 @@
-# biostat-203B-2024
+# biostat-203b-2024-winter
 my homework for biostat 203B
