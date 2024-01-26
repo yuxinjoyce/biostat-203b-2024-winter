@@ -40,13 +40,17 @@ sessionInfo()
 4. After each homework due date, course reader and instructor will check out your `main` branch for grading. Tag each of your homework submissions with tag names `hw1`, `hw2`, ... Tagging time will be used as your submission time. That means if you tag your `hw1` submission after deadline, penalty points will be deducted for late submission.
 
 5. After this course, you can make this repository public and use it to demonstrate your skill sets on job market.
+**Answer:**
+Display the URL of my GiHub repository [here](https://github.com/yuxinjoyce?tab=repositories).
+
 
 ## Q2. Data ethics training
 
 This exercise (and later in this course) uses the [MIMIC-IV data v2.2](https://physionet.org/content/mimiciv/2.2/), a freely accessible critical care database developed by the MIT Lab for Computational Physiology. Follow the instructions at <https://mimic.mit.edu/docs/gettingstarted/> to (1) complete the CITI `Data or Specimens Only Research` course and (2) obtain the PhysioNet credential for using the MIMIC-IV data. Display the verification links to your completion report and completion certificate here. **You must complete Q2 before working on the remaining questions.** (Hint: The CITI training takes a few hours and the PhysioNet credentialing takes a couple days; do not leave it to the last minute.)
-
+**Answer:**
+Here is the link to my [completion report](https://www.citiprogram.org/verify/?k9b30ee2d-cb9b-4395-8e6e-fa681a7f95f1-60370426).
+Here is the link to my [completion certificate](https://www.citiprogram.org/verify/?w75b8ecb6-c2fe-438e-9f74-c191fbb2095a-60370426).
 ## Q3. Linux Shell Commands
-
 1. Make the MIMIC v2.2 data available at location `~/mimic`. 
 ```{bash}
 #| eval: false
@@ -55,10 +59,23 @@ ls -l ~/mimic/
 Refer to the documentation <https://physionet.org/content/mimiciv/2.2/> for details of data files. Please, do **not** put these data files into Git; they are big. Do **not** copy them into your directory. Do **not** decompress the gz data files. These create unnecessary big files and are not big-data-friendly practices. Read from the data folder `~/mimic` directly in following exercises. 
 
   Use Bash commands to answer following questions.
-
+**Answer:** I created a symbolic link 'mimic' to my MIMIC data folder.
+Here is the output of `ls -l ~/mimic/`:
+```{bash}
+ls -l ~/mimic/
+```
 2. Display the contents in the folders `hosp` and `icu` using Bash command `ls -l`. Why are these data files distributed as `.csv.gz` files instead of `.csv` (comma separated values) files? Read the page <https://mimic.mit.edu/docs/iv/> to understand what's in each folder.
+```{bash}
+ls -l ~/mimic/hosp ~/mimic/icu
+```
+**Answer:** The ".gz" extension indicates that the files are compressed using gzip, a file compression utility. 
 
 3. Briefly describe what Bash commands `zcat`, `zless`, `zmore`, and `zgrep` do.
+**Answer:** <b>
+`zcat`: view files without decompressing them.
+`zless`:view the content of compressed files one screen at a time
+`zmore`: page through the content of compressed files
+`zgrep`:search the contents of a compressed file without uncompressing it
 
 4. (Looping in Bash) What's the output of the following bash script?
 ```{bash}
@@ -69,12 +86,76 @@ do
 done
 ```
 Display the number of lines in each data file using a similar loop. (Hint: combine linux commands `zcat <` and `wc -l`.)
+```{bash}
+for datafile in ~/mimic/hosp/{a,l,pa}*.gz
+do
+  echo "Number of lines in $datafile:"
+  zcat < $datafile | wc -l
+done
+```
 
 5. Display the first few lines of `admissions.csv.gz`. How many rows are in this data file? How many unique patients (identified by `subject_id`) are in this data file? Do they match the number of patients listed in the `patients.csv.gz` file? (Hint: combine Linux commands `zcat <`, `head`/`tail`, `awk`, `sort`, `uniq`, `wc`, and so on.)
+```{bash}
+zcat <  ~/mimic/hosp/admissions.csv.gz | head
+```
+
+
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | wc -l
+```
+**Ans:**There are 431242 rows.
+
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | awk -F ',' '{print $1}' | sort -u | wc -l
+```
+**Ans:**The number of unique patients is 18073, it did not match the number of patients listed in the `patients.csv.gz` file.
 
 6. What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq -c`, `wc`, and so on; skip the header line.)
 
+```{bash}
+zcat  < ~/mimic/hosp/admissions.csv.gz | tail -n +2 | awk -F ',' '{print $6}' | sort | uniq -c
+zcat  < ~/mimic/hosp/admissions.csv.gz | tail -n +2 | awk -F ',' '{print $8}' | sort | uniq -c
+zcat  < ~/mimic/hosp/admissions.csv.gz | tail -n +2 | awk -F ',' '{print $10}' | sort | uniq -c
+zcat  < ~/mimic/hosp/admissions.csv.gz | tail -n +2 | awk -F ',' '{print $13}' | sort | uniq -c
+```
+
+
 7. _To compress, or not to compress. That's the question._ Let's focus on the big data file `labevents.csv.gz`. Compare compressed gz file size to the uncompressed file size. Compare the run times of `zcat < ~/mimic/labevents.csv.gz | wc -l` versus `wc -l labevents.csv`. Discuss the trade off between storage and speed for big data files. (Hint: `gzip -dk < FILENAME.gz > ./FILENAME`. Remember to delete the large `labevents.csv` file after the exercise.)
+
+```{bash}
+du -h ~/mimic/hosp/labevents.csv.gz
+```
+```{bash}
+gzip -dk < ~/mimic/hosp/labevents.csv.gz > ./labevents.csv
+du -h ./labevents.csv
+```
+
+
+```{bash}
+time zcat < ~/mimic/hosp/labevents.csv.gz | wc -l
+```
+real	0m18.761s
+user	0m22.903s
+sys	0m1.946s
+
+```{bash eval=FALSE}
+time wc -l ./labevents.csv 
+real	0m5.893s
+user	0m4.305s
+sys	0m1.388s
+```
+real	0m5.893s
+user	0m4.305s
+sys	0m1.388s
+**Anwser:**
+The size of compressed gz file size is 1.8G and the uncompressed is 13G.
+The run times of compressed gz file size is 18.761s and the uncompressed is 5.893s.
+Obviously, the compressed has smaller size but needs more time to run, while the uncompressed has larger size but save more time.Thus, when we consider about which type to choose, we need to  choose based on the specific use case and requirements.
+
+```{bash}
+rm ./labevents.csv
+```
+
 
 ## Q4. Who's popular in Price and Prejudice
 
@@ -90,20 +171,28 @@ wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 for char in Elizabeth Jane Lydia Darcy
 do
   echo $char:
-  # some bash commands here
+  grep -o -i "$char" pg42671.txt | wc -l
 done
 ```
+
+**Answer:**
+Elizabeth:634 Jane:293 Lydia:171 Darcy:418
+The wget command is a utility for downloading files from the web using the command line. The -nc option in the context of wget stands for "no-clobber," and its primary purpose is to prevent overwriting existing files. In this question, `wget -nc` download the Price and Prejudice from http://www.gutenberg.org/cache/epub/42671/pg42671.txt if it does not exist locally or if it differs in size from the remote version.
+
 
 2. What's the difference between the following two commands?
 ```{bash}
 #| eval: false
 echo 'hello, world' > test1.txt
 ```
-and
+
 ```{bash}
 #| eval: false
 echo 'hello, world' >> test2.txt
 ```
+
+**Answer:**
+The difference between the two commands is that the first command will overwrite the file with the new text if it already exists, while the second command will add the new text to the end of the file without overwriting existing contentif it already exists.
 
 3. Using your favorite text editor (e.g., `vi`), type the following and save the file as `middle.sh`:
 ```{bash eval=FALSE}
