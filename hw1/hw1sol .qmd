@@ -53,7 +53,9 @@ This exercise (and later in this course) uses the [MIMIC-IV data v2.2](https://p
 Here is the link to my [completion report](https://www.citiprogram.org/verify/?k9b30ee2d-cb9b-4395-8e6e-fa681a7f95f1-60370426).
 
 Here is the link to my [completion certificate](https://www.citiprogram.org/verify/?w75b8ecb6-c2fe-438e-9f74-c191fbb2095a-60370426).
+
 ## Q3. Linux Shell Commands
+
 1. Make the MIMIC v2.2 data available at location `~/mimic`. 
 ```{bash}
 #| eval: false
@@ -112,9 +114,13 @@ zcat < ~/mimic/hosp/admissions.csv.gz | wc -l
 There are 431242 rows.
 
 ```{bash}
-zcat < ~/mimic/hosp/admissions.csv.gz | awk -F ',' '{print $1}' | sort -u | wc -l
+zcat < ~/mimic/hosp/admissions.csv.gz | awk -F',' 'NR>1 {print $1}' | sort -u | wc -l
 ```
-**Ans:**There are 431242 rows in the datafile. The number of unique patients is 18073, it did not match the number of patients listed in the `patients.csv.gz` file.
+```{bash}
+zcat < ~/mimic/hosp/patients.csv.gz | tail -n +2 | cut -d',' -f1 | uniq | wc -l
+```
+
+**Ans:** There are 431242 rows in this datafile. The number of unique patients in this datafile is 180733, it did not match the number of patients listed in the `patients.csv.gz` file.
 
 6. What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq -c`, `wc`, and so on; skip the header line.)
 
@@ -124,7 +130,6 @@ zcat  < ~/mimic/hosp/admissions.csv.gz | tail -n +2 | awk -F ',' '{print $8}' | 
 zcat  < ~/mimic/hosp/admissions.csv.gz | tail -n +2 | awk -F ',' '{print $10}' | sort | uniq -c
 zcat  < ~/mimic/hosp/admissions.csv.gz | tail -n +2 | awk -F ',' '{print $13}' | sort | uniq -c
 ```
-
 
 7. _To compress, or not to compress. That's the question._ Let's focus on the big data file `labevents.csv.gz`. Compare compressed gz file size to the uncompressed file size. Compare the run times of `zcat < ~/mimic/labevents.csv.gz | wc -l` versus `wc -l labevents.csv`. Discuss the trade off between storage and speed for big data files. (Hint: `gzip -dk < FILENAME.gz > ./FILENAME`. Remember to delete the large `labevents.csv` file after the exercise.)
 
@@ -165,6 +170,15 @@ wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 Explain what `wget -nc` does. Do **not** put this text file `pg42671.txt` in Git. Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
 ```{bash}
 #| eval: false
+wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
+for char in Elizabeth Jane Lydia Darcy
+do
+  echo $char:
+  # some bash commands here
+done
+```
+
+```{bash}
 wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 for char in Elizabeth Jane Lydia Darcy
 do
@@ -221,8 +235,31 @@ chmod +x middle.sh
 
 **Answer:** The output is 16-20 lines of the file pg42671.txt. `"$1"` is the pg42671.txt, which is the filename. `"$2"` is 20, which is the end_line. `"$3"` is 5, which is the num_lines. The first line is the shebang and specifies the interpreter to use. Without it, the script might be interpreted by a different shell, and the behavior could be different. 
 
+```{bash}
+rm ./pg42671.txt
+```
+
 ## Q5. More fun with Linux
 Try following commands in Bash and interpret the results: `cal`, `cal 2024`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `history | tail`.
+
+```{bash}
+cal
+cal 2024
+cal 9 1752
+date
+hostname
+arch
+uname -a
+uptime
+who am i
+who
+w
+id
+last | head
+echo {con,pre}{sent,fer}{s,ed}
+time sleep 5
+history | tail
+```
 
 **Answer:**
 `cal`: Displays the current month's calendar.
