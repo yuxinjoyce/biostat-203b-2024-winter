@@ -3329,9 +3329,9 @@ Number of lines in /Users/yuxin/mimic/hosp/patients.csv.gz:
 <div class="cell-output cell-output-stdout">
 <pre><code> 118171368
 
-real    0m18.652s
-user    0m22.808s
-sys 0m1.910s</code></pre>
+real    0m18.738s
+user    0m22.861s
+sys 0m1.964s</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -3339,9 +3339,9 @@ sys 0m1.910s</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code> 118171368 ./labevents.csv
 
-real    0m5.868s
-user    0m4.271s
-sys 0m1.391s</code></pre>
+real    0m5.864s
+user    0m4.272s
+sys 0m1.387s</code></pre>
 </div>
 </div>
 <p><strong>Anwser:</strong> The size of compressed gz file size is 1.8G and the uncompressed is 13G. The run times of compressed gz file size is 18.761s and the uncompressed is 5.893s. Obviously, the compressed has smaller size but needs more time to run, while the uncompressed has larger size but save more time.Thus, when we consider about which type to choose, we need to choose based on the specific use case and requirements.</p>
@@ -3374,34 +3374,34 @@ sys 0m1.391s</code></pre>
 <span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grep</span> <span class="at">-o</span> <span class="at">-i</span> <span class="st">&quot;</span><span class="va">$char</span><span class="st">&quot;</span> pg42671.txt <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span>
 <span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>--2024-01-26 19:27:04--  http://www.gutenberg.org/cache/epub/42671/pg42671.txt
+<pre><code>--2024-01-26 20:07:19--  http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 Resolving www.gutenberg.org (www.gutenberg.org)... 152.19.134.47
 Connecting to www.gutenberg.org (www.gutenberg.org)|152.19.134.47|:80... connected.
 HTTP request sent, awaiting response... 302 Found
 Location: https://www.gutenberg.org/cache/epub/42671/pg42671.txt [following]
---2024-01-26 19:27:04--  https://www.gutenberg.org/cache/epub/42671/pg42671.txt
+--2024-01-26 20:07:20--  https://www.gutenberg.org/cache/epub/42671/pg42671.txt
 Connecting to www.gutenberg.org (www.gutenberg.org)|152.19.134.47|:443... connected.
 HTTP request sent, awaiting response... 200 OK
 Length: 725284 (708K) [text/plain]
 Saving to: ‘pg42671.txt’
 
-     0K .......... .......... .......... .......... ..........  7%  244K 3s
-    50K .......... .......... .......... .......... .......... 14%  613K 2s
-   100K .......... .......... .......... .......... .......... 21% 2.54M 1s
-   150K .......... .......... .......... .......... .......... 28%  695K 1s
-   200K .......... .......... .......... .......... .......... 35% 4.67M 1s
-   250K .......... .......... .......... .......... .......... 42% 3.50M 1s
-   300K .......... .......... .......... .......... .......... 49% 5.03M 0s
-   350K .......... .......... .......... .......... .......... 56% 4.32M 0s
-   400K .......... .......... .......... .......... .......... 63%  975K 0s
-   450K .......... .......... .......... .......... .......... 70% 6.98M 0s
-   500K .......... .......... .......... .......... .......... 77% 4.10M 0s
-   550K .......... .......... .......... .......... .......... 84% 6.50M 0s
-   600K .......... .......... .......... .......... .......... 91% 4.32M 0s
-   650K .......... .......... .......... .......... .......... 98% 10.6M 0s
-   700K ........                                              100%  166K=0.5s
+     0K .......... .......... .......... .......... ..........  7%  501K 1s
+    50K .......... .......... .......... .......... .......... 14%  509K 1s
+   100K .......... .......... .......... .......... .......... 21% 4.53M 1s
+   150K .......... .......... .......... .......... .......... 28% 2.10M 1s
+   200K .......... .......... .......... .......... .......... 35%  592K 1s
+   250K .......... .......... .......... .......... .......... 42% 5.23M 0s
+   300K .......... .......... .......... .......... .......... 49% 1.90M 0s
+   350K .......... .......... .......... .......... .......... 56% 1.81M 0s
+   400K .......... .......... .......... .......... .......... 63% 1.65M 0s
+   450K .......... .......... .......... .......... .......... 70% 1.89M 0s
+   500K .......... .......... .......... .......... .......... 77% 4.42M 0s
+   550K .......... .......... .......... .......... .......... 84% 2.18M 0s
+   600K .......... .......... .......... .......... .......... 91% 2.63M 0s
+   650K .......... .......... .......... .......... .......... 98%  627K 0s
+   700K ........                                              100%  166K=0.6s
 
-2024-01-26 19:27:05 (1.34 MB/s) - ‘pg42671.txt’ saved [725284/725284]
+2024-01-26 20:07:21 (1.22 MB/s) - ‘pg42671.txt’ saved [725284/725284]
 
 Elizabeth:
      634
@@ -3413,7 +3413,8 @@ Darcy:
      418</code></pre>
 </div>
 </div>
-<p><strong>Answer:</strong> Elizabeth:634 Jane:293 Lydia:171 Darcy:418 The wget command is a utility for downloading files from the web using the command line. The -nc option in the context of wget stands for “no-clobber,” and its primary purpose is to prevent overwriting existing files. In this question, <code>wget -nc</code> download the Price and Prejudice from http://www.gutenberg.org/cache/epub/42671/pg42671.txt if it does not exist locally or if it differs in size from the remote version.</p>
+<p><strong>Answer:</strong> Elizabeth:634 Jane:293 Lydia:171 Darcy:418.</p>
+<p>The wget command is a utility for downloading files from the web using the command line. The -nc option in the context of wget stands for “no-clobber,” and its primary purpose is to prevent overwriting existing files. In this question, <code>wget -nc</code> download the Price and Prejudice from http://www.gutenberg.org/cache/epub/42671/pg42671.txt if it does not exist locally or if it differs in size from the remote version.</p>
 <ol start="2" type="1">
 <li>What’s the difference between the following two commands?</li>
 </ol>
@@ -3532,13 +3533,13 @@ Su Mo Tu We Th Fr Sa
                       
                       
                       
-Fri Jan 26 19:27:05 PST 2024
+Fri Jan 26 20:07:21 PST 2024
 yuxindeMacBook-Air.local
 arm64Darwin yuxindeMacBook-Air.local 22.6.0 Darwin Kernel Version 22.6.0: Wed Jul  5 22:17:35 PDT 2023; root:xnu-8796.141.3~6/RELEASE_ARM64_T8112 arm64
-19:27  up 19 days, 22:37, 1 user, load averages: 1.82 2.05 2.25
-yuxin                         Jan 26 19:27 
+20:07  up 19 days, 23:17, 1 user, load averages: 2.11 1.91 1.84
+yuxin                         Jan 26 20:07 
 yuxin            console      Jan  6 20:50 
-19:27  up 19 days, 22:37, 1 user, load averages: 1.82 2.05 2.25
+20:07  up 19 days, 23:17, 1 user, load averages: 2.11 1.91 1.84
 USER     TTY      FROM              LOGIN@  IDLE WHAT
 yuxin    console  -                06Jan24 19days -
 uid=501(yuxin) gid=20(staff) groups=20(staff),12(everyone),61(localaccounts),79(_appserverusr),80(admin),81(_appserveradm),98(_lpadmin),701(com.apple.sharepoint.group.1),33(_appstore),100(_lpoperator),204(_developer),250(_analyticsusers),395(com.apple.access_ftp),398(com.apple.access_screensharing),399(com.apple.access_ssh),400(com.apple.access_remote_ae)
