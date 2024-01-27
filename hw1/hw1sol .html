@@ -3329,9 +3329,9 @@ Number of lines in /Users/yuxin/mimic/hosp/patients.csv.gz:
 <div class="cell-output cell-output-stdout">
 <pre><code> 118171368
 
-real    0m18.793s
-user    0m22.994s
-sys 0m1.867s</code></pre>
+real    0m18.652s
+user    0m22.808s
+sys 0m1.910s</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -3339,9 +3339,9 @@ sys 0m1.867s</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code> 118171368 ./labevents.csv
 
-real    0m5.968s
-user    0m4.313s
-sys 0m1.431s</code></pre>
+real    0m5.868s
+user    0m4.271s
+sys 0m1.391s</code></pre>
 </div>
 </div>
 <p><strong>Anwser:</strong> The size of compressed gz file size is 1.8G and the uncompressed is 13G. The run times of compressed gz file size is 18.761s and the uncompressed is 5.893s. Obviously, the compressed has smaller size but needs more time to run, while the uncompressed has larger size but save more time.Thus, when we consider about which type to choose, we need to choose based on the specific use case and requirements.</p>
@@ -3374,7 +3374,34 @@ sys 0m1.431s</code></pre>
 <span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">grep</span> <span class="at">-o</span> <span class="at">-i</span> <span class="st">&quot;</span><span class="va">$char</span><span class="st">&quot;</span> pg42671.txt <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span>
 <span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>File ‘pg42671.txt’ already there; not retrieving.
+<pre><code>--2024-01-26 19:27:04--  http://www.gutenberg.org/cache/epub/42671/pg42671.txt
+Resolving www.gutenberg.org (www.gutenberg.org)... 152.19.134.47
+Connecting to www.gutenberg.org (www.gutenberg.org)|152.19.134.47|:80... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://www.gutenberg.org/cache/epub/42671/pg42671.txt [following]
+--2024-01-26 19:27:04--  https://www.gutenberg.org/cache/epub/42671/pg42671.txt
+Connecting to www.gutenberg.org (www.gutenberg.org)|152.19.134.47|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 725284 (708K) [text/plain]
+Saving to: ‘pg42671.txt’
+
+     0K .......... .......... .......... .......... ..........  7%  244K 3s
+    50K .......... .......... .......... .......... .......... 14%  613K 2s
+   100K .......... .......... .......... .......... .......... 21% 2.54M 1s
+   150K .......... .......... .......... .......... .......... 28%  695K 1s
+   200K .......... .......... .......... .......... .......... 35% 4.67M 1s
+   250K .......... .......... .......... .......... .......... 42% 3.50M 1s
+   300K .......... .......... .......... .......... .......... 49% 5.03M 0s
+   350K .......... .......... .......... .......... .......... 56% 4.32M 0s
+   400K .......... .......... .......... .......... .......... 63%  975K 0s
+   450K .......... .......... .......... .......... .......... 70% 6.98M 0s
+   500K .......... .......... .......... .......... .......... 77% 4.10M 0s
+   550K .......... .......... .......... .......... .......... 84% 6.50M 0s
+   600K .......... .......... .......... .......... .......... 91% 4.32M 0s
+   650K .......... .......... .......... .......... .......... 98% 10.6M 0s
+   700K ........                                              100%  166K=0.5s
+
+2024-01-26 19:27:05 (1.34 MB/s) - ‘pg42671.txt’ saved [725284/725284]
 
 Elizabeth:
      634
@@ -3505,13 +3532,13 @@ Su Mo Tu We Th Fr Sa
                       
                       
                       
-Fri Jan 26 18:06:33 PST 2024
+Fri Jan 26 19:27:05 PST 2024
 yuxindeMacBook-Air.local
 arm64Darwin yuxindeMacBook-Air.local 22.6.0 Darwin Kernel Version 22.6.0: Wed Jul  5 22:17:35 PDT 2023; root:xnu-8796.141.3~6/RELEASE_ARM64_T8112 arm64
-18:06  up 19 days, 21:16, 1 user, load averages: 2.09 1.71 1.61
-yuxin                         Jan 26 18:06 
+19:27  up 19 days, 22:37, 1 user, load averages: 1.82 2.05 2.25
+yuxin                         Jan 26 19:27 
 yuxin            console      Jan  6 20:50 
-18:06  up 19 days, 21:16, 1 user, load averages: 2.09 1.71 1.61
+19:27  up 19 days, 22:37, 1 user, load averages: 1.82 2.05 2.25
 USER     TTY      FROM              LOGIN@  IDLE WHAT
 yuxin    console  -                06Jan24 19days -
 uid=501(yuxin) gid=20(staff) groups=20(staff),12(everyone),61(localaccounts),79(_appserverusr),80(admin),81(_appserveradm),98(_lpadmin),701(com.apple.sharepoint.group.1),33(_appstore),100(_lpoperator),204(_developer),250(_analyticsusers),395(com.apple.access_ftp),398(com.apple.access_screensharing),399(com.apple.access_ssh),400(com.apple.access_remote_ae)
@@ -3527,7 +3554,7 @@ yuxin     ttys001                   Sat Jan  6 22:43 - 22:43  (00:00)
 yuxin     ttys000                   Sat Jan  6 22:19 - 22:19  (00:00)
 consents consented confers confered presents presented prefers prefered
 
-real    0m5.008s
+real    0m5.007s
 user    0m0.000s
 sys 0m0.001s</code></pre>
 </div>
