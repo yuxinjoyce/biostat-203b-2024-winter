@@ -3082,10 +3082,10 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 loaded via a namespace (and not attached):
- [1] htmlwidgets_1.6.4 compiler_4.3.1    fastmap_1.1.1     cli_3.6.1        
- [5] tools_4.3.1       htmltools_0.5.7   rstudioapi_0.15.0 yaml_2.3.7       
- [9] rmarkdown_2.25    knitr_1.45        jsonlite_1.8.7    xfun_0.41        
-[13] digest_0.6.33     rlang_1.1.1       evaluate_0.23    </code></pre>
+ [1] htmlwidgets_1.6.4 compiler_4.3.1    fastmap_1.1.1     cli_3.6.2        
+ [5] tools_4.3.1       htmltools_0.5.7   rstudioapi_0.15.0 yaml_2.3.8       
+ [9] rmarkdown_2.25    knitr_1.45        jsonlite_1.8.8    xfun_0.41        
+[13] digest_0.6.34     rlang_1.1.3       evaluate_0.23    </code></pre>
 </div>
 </div>
 <section id="q1.-gitgithub" class="level2">
@@ -3164,9 +3164,9 @@ total 6155968
 </div>
 <p><strong>Answer:</strong> The “.gz” extension indicates that the files are compressed using gzip, a file compression utility.</p>
 <ol start="3" type="1">
-<li><p>Briefly describe what Bash commands <code>zcat</code>, <code>zless</code>, <code>zmore</code>, and <code>zgrep</code> do. <strong>Answer:</strong> <b> <code>zcat</code>: view files without decompressing them. <code>zless</code>:view the content of compressed files one screen at a time <code>zmore</code>: page through the content of compressed files <code>zgrep</code>:search the contents of a compressed file without uncompressing it</b></p></li><b>
+<li><p>Briefly describe what Bash commands <code>zcat</code>, <code>zless</code>, <code>zmore</code>, and <code>zgrep</code> do. <strong>Answer:</strong> <code>zcat</code>: view files without decompressing them. <code>zless</code>:view the content of compressed files one screen at a time <code>zmore</code>: page through the content of compressed files <code>zgrep</code>:search the contents of a compressed file without uncompressing it</p></li>
 <li><p>(Looping in Bash) What’s the output of the following bash script?</p></li>
-</b></ol><b>
+</ol>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> datafile <span class="kw">in</span> ~/mimic/hosp/<span class="dt">{a</span><span class="op">,</span><span class="dt">l</span><span class="op">,</span><span class="dt">pa}</span><span class="pp">*</span>.gz</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">do</span></span>
@@ -3309,9 +3309,9 @@ Number of lines in /Users/yuxin/mimic/hosp/patients.csv.gz:
 <div class="cell-output cell-output-stdout">
 <pre><code> 118171368
 
-real    0m18.647s
-user    0m22.936s
-sys 0m1.789s</code></pre>
+real    0m18.730s
+user    0m22.941s
+sys 0m1.787s</code></pre>
 </div>
 </div>
 <p>real 0m18.761s user 0m22.903s sys 0m1.946s</p>
@@ -3325,7 +3325,7 @@ sys 0m1.789s</code></pre>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> ./labevents.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</b></section><b>
+</section>
 <section id="q4.-whos-popular-in-price-and-prejudice" class="level2">
 <h2 class="anchored" data-anchor-id="q4.-whos-popular-in-price-and-prejudice">Q4. Who’s popular in Price and Prejudice</h2>
 <ol type="1">
@@ -3368,10 +3368,43 @@ sys 0m1.789s</code></pre>
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./middle.sh</span> pg42671.txt 20 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Explain the output. Explain the meaning of <code>&quot;$1&quot;</code>, <code>&quot;$2&quot;</code>, and <code>&quot;$3&quot;</code> in this shell script. Why do we need the first line of the shell script?</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">vi</span> middle.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> +x middle.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./middle.sh</span> pg42671.txt 20 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Editor: R. W. Chapman
+
+Release date: May 9, 2013 [eBook #42671]
+
+Language: English</code></pre>
+</div>
+</div>
+<p><strong>Answer:</strong> The output is 16-20 lines of the file pg42671.txt. <code>&quot;$1&quot;</code> is the pg42671.txt, which is the filename. <code>&quot;$2&quot;</code> is 20, which is the end_line. <code>&quot;$3&quot;</code> is 5, which is the num_lines. The first line is the shebang and specifies the interpreter to use. Without it, the script might be interpreted by a different shell, and the behavior could be different.</p>
 </section>
 <section id="q5.-more-fun-with-linux" class="level2">
 <h2 class="anchored" data-anchor-id="q5.-more-fun-with-linux">Q5. More fun with Linux</h2>
 <p>Try following commands in Bash and interpret the results: <code>cal</code>, <code>cal 2024</code>, <code>cal 9 1752</code> (anything unusual?), <code>date</code>, <code>hostname</code>, <code>arch</code>, <code>uname -a</code>, <code>uptime</code>, <code>who am i</code>, <code>who</code>, <code>w</code>, <code>id</code>, <code>last | head</code>, <code>echo {con,pre}{sent,fer}{s,ed}</code>, <code>time sleep 5</code>, <code>history | tail</code>.</p>
+<p><strong>Answer:</strong> <code>cal</code>: Displays the current month’s calendar.</p>
+<p><code>cal 2024</code>: Displays the calendar for the year 2024.</p>
+<p><code>cal 9 1752</code>: Displays a calendar for the month of September in the year 1752. There was a transition from September 2, 1752, to September 14, 1752. 11 days were skipped.</p>
+<p><code>date</code>: Displays the current date and time.</p>
+<p><code>hostname</code>: displays the name of the current host arch.</p>
+<p><code>arch</code>: Displays the computer architecture.</p>
+<p><code>uname -a</code>: Provides detailed information about the system, including the kernel version, machine type, and more.</p>
+<p><code>uptime</code>: Shows how long the system has been running and the current system load.</p>
+<p><code>who am i</code>: Displays the current user’s login name .</p>
+<p><code>who</code>: Lists the users who are currently logged in.</p>
+<p><code>w</code>: Displays information about the system and logged-in users.</p>
+<p><code>id</code>: Shows the user and group information for the current user.</p>
+<p><code>last | head</code>: Shows a list of last logged-in users.</p>
+<p><code>echo {con,pre}{sent,fer}{s,ed}</code>: Uses brace expansion to generate combinations and echoes them. For example, it prints “consciences conscience conscious consciences presents presenter presented presenters”.</p>
+<p><code>time sleep 5</code>: Measures the time it takes to execute the sleep 5 command.</p>
+<p><code>history | tail</code>: Displays the command history with the most recent commands.</p>
 </section>
 <section id="q6.-book" class="level2">
 <h2 class="anchored" data-anchor-id="q6.-book">Q6. Book</h2>
@@ -3383,7 +3416,7 @@ sys 0m1.789s</code></pre>
 <p>For grading purpose, include a screenshot of Section 4.1.5 of the book here.</p>
 </section>
 
-</b></main><b>
+</main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -3618,8 +3651,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
-</b></div><b> <!-- /content -->
+</div> <!-- /content -->
 
 
 
-</b></body></html>
+</body></html>

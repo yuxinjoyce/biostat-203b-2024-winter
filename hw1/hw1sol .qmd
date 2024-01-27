@@ -23,7 +23,7 @@ knitr:
 
 Display machine information for reproducibility:
 ```{r}
-#| eval: TRUE
+#| eval: True
 sessionInfo()
 ```
 
@@ -71,7 +71,7 @@ ls -l ~/mimic/hosp ~/mimic/icu
 **Answer:** The ".gz" extension indicates that the files are compressed using gzip, a file compression utility. 
 
 3. Briefly describe what Bash commands `zcat`, `zless`, `zmore`, and `zgrep` do.
-**Answer:** <b>
+**Answer:** 
 `zcat`: view files without decompressing them.
 `zless`:view the content of compressed files one screen at a time
 `zmore`: page through the content of compressed files
@@ -129,7 +129,6 @@ du -h ~/mimic/hosp/labevents.csv.gz
 gzip -dk < ~/mimic/hosp/labevents.csv.gz > ./labevents.csv
 du -h ./labevents.csv
 ```
-
 
 ```{bash}
 time zcat < ~/mimic/hosp/labevents.csv.gz | wc -l
@@ -201,6 +200,7 @@ The difference between the two commands is that the first command will overwrite
 # Usage: bash middle.sh filename end_line num_lines
 head -n "$2" "$1" | tail -n "$3"
 ```
+
 Using `chmod` to make the file executable by the owner, and run
 ```{bash}
 #| eval: false
@@ -208,9 +208,58 @@ Using `chmod` to make the file executable by the owner, and run
 ```
 Explain the output. Explain the meaning of `"$1"`, `"$2"`, and `"$3"` in this shell script. Why do we need the first line of the shell script?
 
-## Q5. More fun with Linux
+```{bash eval=FALSE}
+vi middle.sh
+```
 
+```{bash }
+chmod +x middle.sh
+```
+
+```{bash}
+./middle.sh pg42671.txt 20 5
+```
+
+**Answer:** The output is 16-20 lines of the file pg42671.txt. `"$1"` is the pg42671.txt, which is the filename. `"$2"` is 20, which is the end_line. `"$3"` is 5, which is the num_lines. The first line is the shebang and specifies the interpreter to use. Without it, the script might be interpreted by a different shell, and the behavior could be different. 
+
+
+
+## Q5. More fun with Linux
 Try following commands in Bash and interpret the results: `cal`, `cal 2024`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `history | tail`.
+
+**Answer:**
+`cal`: Displays the current month's calendar.
+
+`cal 2024`: Displays the calendar for the year 2024.
+
+`cal 9 1752`: Displays a calendar for the month of September in the year 1752.
+There was a transition from September 2, 1752, to September 14, 1752. 11 days were skipped.
+
+`date`: Displays the current date and time.
+
+`hostname`: displays the name of the current host arch.
+
+`arch`: Displays the computer architecture.
+
+`uname -a`: Provides detailed information about the system, including the kernel version, machine type, and more.
+
+`uptime`: Shows how long the system has been running and the current system load.
+
+`who am i`:  Displays the current user’s login name .
+
+`who`: Lists the users who are currently logged in.
+
+`w`: Displays information about the system and logged-in users.
+
+`id`: Shows the user and group information for the current user.
+
+`last | head`: Shows a list of last logged-in users.
+
+`echo {con,pre}{sent,fer}{s,ed}`: Uses brace expansion to generate combinations and echoes them. For example, it prints "consciences conscience conscious consciences presents presenter presented presenters".
+
+`time sleep 5`: Measures the time it takes to execute the sleep 5 command.
+
+`history | tail`: Displays the command history with the most recent commands.
 
 ## Q6. Book
 
