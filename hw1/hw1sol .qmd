@@ -40,15 +40,18 @@ sessionInfo()
 4. After each homework due date, course reader and instructor will check out your `main` branch for grading. Tag each of your homework submissions with tag names `hw1`, `hw2`, ... Tagging time will be used as your submission time. That means if you tag your `hw1` submission after deadline, penalty points will be deducted for late submission.
 
 5. After this course, you can make this repository public and use it to demonstrate your skill sets on job market.
+
 **Answer:**
-Display the URL of my GiHub repository [here](https://github.com/yuxinjoyce?tab=repositories).
+Display the URL of my GiHub repository [here](https://github.com/yuxinjoyce/biostat-203b-2024-winter).
 
 
 ## Q2. Data ethics training
 
 This exercise (and later in this course) uses the [MIMIC-IV data v2.2](https://physionet.org/content/mimiciv/2.2/), a freely accessible critical care database developed by the MIT Lab for Computational Physiology. Follow the instructions at <https://mimic.mit.edu/docs/gettingstarted/> to (1) complete the CITI `Data or Specimens Only Research` course and (2) obtain the PhysioNet credential for using the MIMIC-IV data. Display the verification links to your completion report and completion certificate here. **You must complete Q2 before working on the remaining questions.** (Hint: The CITI training takes a few hours and the PhysioNet credentialing takes a couple days; do not leave it to the last minute.)
+
 **Answer:**
 Here is the link to my [completion report](https://www.citiprogram.org/verify/?k9b30ee2d-cb9b-4395-8e6e-fa681a7f95f1-60370426).
+
 Here is the link to my [completion certificate](https://www.citiprogram.org/verify/?w75b8ecb6-c2fe-438e-9f74-c191fbb2095a-60370426).
 ## Q3. Linux Shell Commands
 1. Make the MIMIC v2.2 data available at location `~/mimic`. 
@@ -59,18 +62,21 @@ ls -l ~/mimic/
 Refer to the documentation <https://physionet.org/content/mimiciv/2.2/> for details of data files. Please, do **not** put these data files into Git; they are big. Do **not** copy them into your directory. Do **not** decompress the gz data files. These create unnecessary big files and are not big-data-friendly practices. Read from the data folder `~/mimic` directly in following exercises. 
 
   Use Bash commands to answer following questions.
+  
 **Answer:** I created a symbolic link 'mimic' to my MIMIC data folder.
 Here is the output of `ls -l ~/mimic/`:
 ```{bash}
 ls -l ~/mimic/
 ```
 2. Display the contents in the folders `hosp` and `icu` using Bash command `ls -l`. Why are these data files distributed as `.csv.gz` files instead of `.csv` (comma separated values) files? Read the page <https://mimic.mit.edu/docs/iv/> to understand what's in each folder.
+
 ```{bash}
 ls -l ~/mimic/hosp ~/mimic/icu
 ```
 **Answer:** The ".gz" extension indicates that the files are compressed using gzip, a file compression utility. 
 
 3. Briefly describe what Bash commands `zcat`, `zless`, `zmore`, and `zgrep` do.
+
 **Answer:** 
 `zcat`: view files without decompressing them.
 `zless`:view the content of compressed files one screen at a time
@@ -103,12 +109,12 @@ zcat <  ~/mimic/hosp/admissions.csv.gz | head
 ```{bash}
 zcat < ~/mimic/hosp/admissions.csv.gz | wc -l
 ```
-**Ans:**There are 431242 rows.
+There are 431242 rows.
 
 ```{bash}
 zcat < ~/mimic/hosp/admissions.csv.gz | awk -F ',' '{print $1}' | sort -u | wc -l
 ```
-**Ans:**The number of unique patients is 18073, it did not match the number of patients listed in the `patients.csv.gz` file.
+**Ans:**There are 431242 rows in the datafile. The number of unique patients is 18073, it did not match the number of patients listed in the `patients.csv.gz` file.
 
 6. What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq -c`, `wc`, and so on; skip the header line.)
 
@@ -133,19 +139,12 @@ du -h ./labevents.csv
 ```{bash}
 time zcat < ~/mimic/hosp/labevents.csv.gz | wc -l
 ```
-real	0m18.761s
-user	0m22.903s
-sys	0m1.946s
 
-```{bash eval=FALSE}
+```{bash}
 time wc -l ./labevents.csv 
-real	0m5.893s
-user	0m4.305s
-sys	0m1.388s
+
 ```
-real	0m5.893s
-user	0m4.305s
-sys	0m1.388s
+
 **Anwser:**
 The size of compressed gz file size is 1.8G and the uncompressed is 13G.
 The run times of compressed gz file size is 18.761s and the uncompressed is 5.893s.
@@ -222,8 +221,6 @@ chmod +x middle.sh
 
 **Answer:** The output is 16-20 lines of the file pg42671.txt. `"$1"` is the pg42671.txt, which is the filename. `"$2"` is 20, which is the end_line. `"$3"` is 5, which is the num_lines. The first line is the shebang and specifies the interpreter to use. Without it, the script might be interpreted by a different shell, and the behavior could be different. 
 
-
-
 ## Q5. More fun with Linux
 Try following commands in Bash and interpret the results: `cal`, `cal 2024`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `history | tail`.
 
@@ -270,3 +267,5 @@ There was a transition from September 2, 1752, to September 14, 1752. 11 days we
 The point of this exercise is (1) to get the book for free and (2) to see an example how a complicated project such as a book can be organized in a reproducible way.
 
 For grading purpose, include a screenshot of Section 4.1.5 of the book here.
+**Answer:** Here is the screenshot of Section 4.1.5 of the book.
+![Section 4.1.5 of the book](./rep-res-book.jpg)
