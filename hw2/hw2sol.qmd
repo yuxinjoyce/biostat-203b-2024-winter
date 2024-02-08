@@ -1,7 +1,7 @@
 ---
 title: "Biostat 203B Homework 2"
 subtitle: Due Feb 9 @ 11:59PM
-author: "Your NAME and UID"
+author: Yuxin Zhang UID:406328706
 format:
   html:
     theme: cosmo
@@ -63,9 +63,62 @@ There are quite a few utilities in R for reading plain text data files. Let us t
 
 Which function is fastest? Is there difference in the (default) parsed data types? How much memory does each resultant dataframe or tibble use? (Hint: `system.time` measures run times; `pryr::object_size` measures memory usage.) 
 
+
+```{r}
+read_csv_time <- system.time({
+  df_read_csv <- "~/mimic/hosp/admissions.csv.gz" %>% read_csv()
+})[3]
+read_csv_time
+```
+
+```{r}
+read.csv_time <- system.time({
+  df_read_csv_base <- "~/mimic/hosp/admissions.csv.gz" %>% read.csv()
+})[3]
+read.csv_time
+```
+
+```{r}
+fread_time <- system.time({
+  dt_fread <- "~/mimic/hosp/admissions.csv.gz" %>% fread()
+})[3]
+fread_time
+```
+```{r}
+class(df_read_csv)
+class(df_read_csv_base)
+class(dt_fread )
+```
+
+```{r}
+object_size(df_read_csv)
+object_size(df_read_csv_base)
+object_size(dt_fread )
+```
+
+The `fread` function is fastes.
+
+
 ### Q1.2 User-supplied data types
 
 Re-ingest `admissions.csv.gz` by indicating appropriate column data types in `read_csv`. Does the run time change? How much memory does the result tibble use? (Hint: `col_types` argument in `read_csv`.)
+
+```{r}
+col_types <- cols(
+  admission_type = col_character(),
+  admittime = col_datetime(format = ""),
+  subject_id = col_double()
+)
+
+system.time({
+  read_csv_col <- "~/mimic/hosp/admissions.csv.gz" %>%
+    read_csv(col_types = col_types) %>%
+    as_tibble()
+})[3]
+
+object_size(read_csv_col)
+```
+change
 
 ## Q2. Ingest big data files
 
@@ -90,9 +143,20 @@ zcat < ~/mimic/hosp/labevents.csv.gz | head -10
 
 Try to ingest `labevents.csv.gz` using `read_csv`. What happens? If it takes more than 5 minutes on your computer, then abort the program and report your findings. 
 
+```{r}
+#| eval: false
+read_csv("~/mimic/hosp/labevents.csv.gz" )
+```
+
 ### Q2.2 Ingest selected columns of `labevents.csv.gz` by `read_csv`
 
 Try to ingest only columns `subject_id`, `itemid`, `charttime`, and `valuenum` in `labevents.csv.gz` using `read_csv`.  Does this solve the ingestion issue? (Hint: `col_select` argument in `read_csv`.)
+
+```{r}
+selected_columns <- c("subject_id", "itemid", "charttime", "valuenum")
+read_csv("~/mimic/hosp/labevents.csv.gz", col_select = selected_columns)
+```
+
 
 ### Q2.3 Ingest subset of `labevents.csv.gz`
 
@@ -105,6 +169,19 @@ Our first strategy to handle this big data file is to make a subset of the `labe
 In later exercises, we will only be interested in the following lab items: creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931) and the following columns: `subject_id`, `itemid`, `charttime`, `valuenum`. Write a Bash command to extract these columns and rows from `labevents.csv.gz` and save the result to a new file `labevents_filtered.csv.gz` in the current working directory. (Hint: use `zcat <` to pipe the output of `labevents.csv.gz` to `awk` and then to `gzip` to compress the output. To save render time, put `#| eval: false` at the beginning of this code chunk.)
 
 Display the first 10 lines of the new file `labevents_filtered.csv.gz`. How many lines are in this new file? How long does it take `read_csv` to ingest `labevents_filtered.csv.gz`?
+
+```{bash}
+zcat < labevents.csv.gz | awk -F, 'BEGIN {OFS=","} NR==1 || ($7==50912 || $2==50971 || $2==50983 || $2==50902 || $2==50882 || $2==51221 || $2==51301 || $2==50931) {print $2, $5, $7, $10}' | gzip > labevents_filtered.csv.gz
+```
+
+
+
+
+
+
+
+
+
 
 ### Q2.4 Ingest `labevents.csv` by Apache Arrow
 
