@@ -96,7 +96,7 @@ object_size(df_read_csv_base)
 object_size(dt_fread )
 ```
 
-The `fread` function is fastes.
+The `fread` function is fastest.
 
 
 ### Q1.2 User-supplied data types
@@ -170,17 +170,28 @@ In later exercises, we will only be interested in the following lab items: creat
 
 Display the first 10 lines of the new file `labevents_filtered.csv.gz`. How many lines are in this new file? How long does it take `read_csv` to ingest `labevents_filtered.csv.gz`?
 
+
 ```{bash}
-zcat < labevents.csv.gz | awk -F, 'BEGIN {OFS=","} NR==1 || ($7==50912 || $2==50971 || $2==50983 || $2==50902 || $2==50882 || $2==51221 || $2==51301 || $2==50931) {print $2, $5, $7, $10}' | gzip > labevents_filtered.csv.gz
+#| eval: false
+zcat < ~/mimic/hosp/labevents.csv.gz | \
+awk -F, 'BEGIN {OFS=","} NR==1 || \
+($5==50912 || $5==50971 || $5==50983 || \
+$5==50902 || $5==50882 || $5==51221 || \
+$5==51301 || $5==50931) {print $2, $5, $7, $10}' | \
+gzip > labevents_filtered.csv.gz
 ```
 
+```{bash}
+cd  ~/Desktop/203B/hw-biostat-203B-2024/hw2
+zcat < labevents_filtered.csv.gz | head -10
+zcat < labevents_filtered.csv.gz | wc -l
+```
 
-
-
-
-
-
-
+```{r}
+system.time({
+  labevents_filtered <- read_csv("labevents_filtered.csv.gz")
+})
+```
 
 
 ### Q2.4 Ingest `labevents.csv` by Apache Arrow
@@ -194,6 +205,34 @@ Our second strategy is to use [Apache Arrow](https://arrow.apache.org/) for larg
 Then use [`arrow::open_dataset`](https://arrow.apache.org/docs/r/reference/open_dataset.html) to ingest `labevents.csv`, select columns, and filter `itemid` as in Q2.3. How long does the ingest+select+filter process take? Display the number of rows and the first 10 rows of the result tibble, and make sure they match those in Q2.3. (Hint: use `dplyr` verbs for selecting columns and filtering rows.)
 
 Write a few sentences to explain what is Apache Arrow. Imagine you want to explain it to a layman in an elevator. 
+
+```{bash}
+#| eval: false
+zcat< ~/mimic/hosp/labevents.csv.gz > labevents.csv
+```
+
+```{r}
+labevents <- arrow::open_dataset("labevents.csv") %>%
+  filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)) %>%
+  select(subject_id, itemid, charttime, valuenum)
+```
+
+
+labevents <- open_dataset("~/Desktop/203B/hw-biostat-203B-2024/hw2/labevents.csv")
+
+
+
+
+```{r}
+start_time <- Sys.time()
+labevents <- open_dataset("labevents.csv") %>%
+  filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)) %>%
+  select(subject_id, itemid, charttime, valuenum)
+end_time <- Sys.time()
+process_time <- end_time - start_time
+process_time
+```
+
 
 ### Q2.5 Compress `labevents.csv` to Parquet format and ingest/select/filter
 
