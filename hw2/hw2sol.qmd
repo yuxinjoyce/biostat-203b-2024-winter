@@ -87,6 +87,7 @@ system.time({
 ```
 
 ```{r}
+#| eval: false
 ad_read_csv
 ad_read_csv_base
 ad_fread
@@ -140,7 +141,7 @@ The run time changes. The result tibble uses 55.31 MB.
 ## Q2. Ingest big data files
 
 <p align="center">
-  <img src="./bigfile.png" width="50%">
+  <img src="https://raw.githubusercontent.com/ucla-biostat-203b/2024winter/main/hw/hw2/bigfile.png" width="50%">
 </p>
 
 Let us focus on a bigger file, `labevents.csv.gz`, which is about 125x bigger than `admissions.csv.gz`.
@@ -155,7 +156,7 @@ zcat < ~/mimic/hosp/labevents.csv.gz | head -10
 ### Q2.1 Ingest `labevents.csv.gz` by `read_csv`
 
 <p align="center">
-  <img src="./readr_logo.png" width="20%">
+  <img src="https://raw.githubusercontent.com/ucla-biostat-203b/2024winter/main/hw/hw2/readr_logo.png" width="20%">
 </p>
 
 Try to ingest `labevents.csv.gz` using `read_csv`. What happens? If it takes more than 5 minutes on your computer, then abort the program and report your findings. 
@@ -182,7 +183,7 @@ This code doesn't finish within 3 minutes on my computer. This is due to the lar
 ### Q2.3 Ingest subset of `labevents.csv.gz`
 
 <p align="center">
-  <img src="./linux_logo.png" width="20%">
+  <img src="https://raw.githubusercontent.com/ucla-biostat-203b/2024winter/main/hw/hw2/linux_logo.png" width="20%">
 </p>
 
 Our first strategy to handle this big data file is to make a subset of the `labevents` data.  Read the [MIMIC documentation](https://mimic.mit.edu/docs/iv/modules/hosp/labevents/) for the content in data file `labevents.csv`.
@@ -214,12 +215,12 @@ system.time({
 })
 ```
 
-There are 24855910 lines in the new file and it takes 3.550s.  
+There are 24855910 lines in the new file including the header  and it takes 3.550s.  
 
 ### Q2.4 Ingest `labevents.csv` by Apache Arrow
 
 <p align="center">
-  <img src="./arrow_logo.png" width="30%">
+  <img src="https://raw.githubusercontent.com/ucla-biostat-203b/2024winter/main/hw/hw2/arrow_logo.png" width="30%">
 </p>
 
 Our second strategy is to use [Apache Arrow](https://arrow.apache.org/) for larger-than-memory data analytics. Unfortunately Arrow does not work with gz files directly. First decompress `labevents.csv.gz` to `labevents.csv` and put it in the current working directory. To save render time, put `#| eval: false` at the beginning of this code chunk.
@@ -237,7 +238,7 @@ zcat< ~/mimic/hosp/labevents.csv.gz > labevents.csv
 ```{r}
 system.time({
   labevents <- arrow::open_dataset(
-    "~/Desktop/203B/hw-biostat-203B-2024/hw2/labevents.csv", 
+    "labevents.csv", 
     format = "csv"
   ) %>%
   filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)) %>%
@@ -252,14 +253,13 @@ sorted_labevents <- labevents %>%
 head(sorted_labevents, 10)
 ```
 
-It takes 28.906 seconds.<br>
 Apache Arrow is like a super-efficient translator for data. It takes information stored in different languages and organizes it in a way that computers can understand really quickly. This means that programs can work with the data much faster, whether they're running on regular computers or powerful graphics processors. It's a tool that makes it easier for different computer programs to share and analyze data, no matter what language they speak.
 
 
 ### Q2.5 Compress `labevents.csv` to Parquet format and ingest/select/filter
 
 <p align="center">
-  <img src="./parquet_logo.png" width="30%">
+  <img src="https://raw.githubusercontent.com/ucla-biostat-203b/2024winter/main/hw/hw2/parquet_logo.png" width="30%">
 </p>
 
 Re-write the csv file `labevents.csv` in the binary Parquet format (Hint: [`arrow::write_dataset`](https://arrow.apache.org/docs/r/reference/write_dataset.html).) How large is the Parquet file(s)? How long does the ingest+select+filter process of the Parquet file(s) take? Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3. (Hint: use `dplyr` verbs for selecting columns and filtering rows.)
@@ -267,41 +267,41 @@ Re-write the csv file `labevents.csv` in the binary Parquet format (Hint: [`arro
 Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.
 
 ```{r}
-labevents_csv <- arrow::open_dataset("~/Desktop/203B/hw-biostat-203B-2024/hw2/labevents.csv", format = "csv")
-arrow::write_dataset(labevents_csv, "~/Desktop/203B/hw-biostat-203B-2024/hw2/labevents.parquet")
+labevents_csv <- arrow::open_dataset("labevents.csv", format = "csv")
+arrow::write_dataset(labevents_csv, "labevents.parquet")
+labevents_parquet <- arrow::open_dataset("labevents.parquet")
 ```
 
 ```{r}
 # time for running the ingest+select+filter process of the Parquet file(s) 
 system.time({
-  labevents_parquet <- arrow::open_dataset(
-    "~/Desktop/203B/hw-biostat-203B-2024/hw2/labevents.parquet") %>%
+  labevents_filitered_parquet <- labevents_parquet %>%
     dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)) %>%
     dplyr::select(subject_id, itemid, charttime, valuenum) %>%
     collect()
 })
 # the number of rows
-nrow(labevents)
+nrow(labevents_filitered_parquet)
+```
+
+```{bash}
+ls -l labevents.parquet
 ```
 
 ```{r}
-object.size(labevents_parquet)
-```
-
-```{r}
-sorted_labevents_parquet <- labevents_parquet %>%
+sorted_labevents_parquet <- labevents_filitered_parquet %>%
   arrange(subject_id, charttime, itemid)
 head(sorted_labevents_parquet, 10)
 ```
 
-The Parquet file is in size of 596543360 bytes and has 24855909 rows.
+The Parquet file is in size of 2069791662 bytes and has 24855909 rows.
 
 Parquet is an open source, column-oriented data file format, designed to store and retrieve information in a really smart way. Data within Parquet files is stored in a columnar format, meaning that values from the same column are stored together. Parquet organizes data neatly and makes it quicker for your computer to find and work with the information you need, while also saving space. 
 
 ### Q2.6 DuckDB
 
 <p align="center">
-  <img src="./duckdb_logo.png" width="20%">
+  <img src="https://raw.githubusercontent.com/ucla-biostat-203b/2024winter/main/hw/hw2/duckdb_logo.png" width="20%">
 </p>
 
 Ingest the Parquet file, convert it to a DuckDB table by [`arrow::to_duckdb`](https://arrow.apache.org/docs/r/reference/to_duckdb.html), select columns, and filter rows as in Q2.5. How long does the ingest+convert+select+filter process take? Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3. (Hint: use `dplyr` verbs for selecting columns and filtering rows.)
@@ -311,7 +311,7 @@ Write a few sentences to explain what is DuckDB. Imagine you want to explain it 
 # time for ingest+convert+select+filter process
 system.time({
   labevents_duckdb <- arrow::open_dataset(
-    "~/Desktop/203B/hw-biostat-203B-2024/hw2/labevents.parquet") %>%
+    "labevents.parquet") %>%
     arrow::to_duckdb(table_name = "labevents_table") %>%
     dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)) %>%
     dplyr::select(subject_id, itemid, charttime, valuenum) %>%
@@ -331,7 +331,7 @@ sorted_labevents_duckdb <- labevents_duckdb %>%
 head(sorted_labevents_duckdb, 10)
 ```
 
-It takes 3.365 seconds and the file has 24855909 rows.
+The file has 24855909 rows.
 
 DuckDB is a versatile database management system known for its flexibility and performance. It offers a flexible extension mechanism that allows users to define new data types, functions, file formats, and even new SQL syntax, catering to specific needs and scenarios. Moreover, DuckDB excels in high-speed data transfer capabilities, enabling rapid movement of data to and from the database. This feature accelerates data processing workflows, ensuring quick ingestion, querying, and analysis of large datasets. 
 
@@ -349,26 +349,29 @@ In later exercises, we are interested in the vitals for ICU patients: heart rate
 
 Document the steps and show code. Display the number of rows and the first 10 rows of the result tibble.
 
+Step 1: decompress `chartevents.csv.gz` to `chartevents.csv`
 ```{bash}
-# decompress `chartevents.csv.gz` to `chartevents.csv`
 #| eval: false
 zcat< ~/mimic/icu/chartevents.csv.gz > chartevents.csv
 ```
 
+Step 2: Re-write the csv file `chartevents.csv` in the binary Parquet format
 ```{r}
-# read the csv file by using arrow::open_datase
-  chartevents <- arrow::open_dataset(
-    "~/Desktop/203B/hw-biostat-203B-2024/hw2/chartevents.csv", 
-    format = "csv"
-  ) %>%
-# filter data
-  filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) %>%
-  collect()
+chartevents_csv <- arrow::open_dataset("chartevents.csv", format = "csv")
+arrow::write_dataset(chartevents_csv, "chartevents.parquet")
+```
 
+Step 3: filter the itemid in 220045, 220181, 220179, 223761, 220210
+```{r}
+chartevents_parquet <- arrow::open_dataset(
+    "chartevents.parquet") %>%
+    dplyr::filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) %>%
+    collect()
+```
 
-nrow(chartevents)
-
-head(chartevents, 10)
+```{r}
+nrow(chartevents_parquet)
+head(chartevents_parquet, 10)
 ```
 
 
