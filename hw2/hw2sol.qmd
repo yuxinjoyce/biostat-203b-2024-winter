@@ -1,7 +1,7 @@
 ---
 title: "Biostat 203B Homework 2"
 subtitle: Due Feb 9 @ 11:59PM
-author: Yuxin Zhang UID:406328706
+author: Yuxin Zhang UID: 406328706
 format:
   html:
     theme: cosmo

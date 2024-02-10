@@ -3111,8 +3111,8 @@ loaded via a namespace (and not attached):
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>memuse<span class="sc">::</span><span class="fu">Sys.meminfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Totalram:  16.000 GiB 
-Freeram:    4.702 GiB </code></pre>
+<pre><code>Totalram:   16.000 GiB 
+Freeram:   285.609 MiB </code></pre>
 </div>
 </div>
 <p>In this exercise, we explore various tools for ingesting the <a href="https://mimic.mit.edu/docs/iv/">MIMIC-IV</a> data introduced in <a href="https://ucla-biostat-203b.github.io/2024winter/hw/hw1/hw1.html">homework 1</a>.</p>
@@ -3174,7 +3174,7 @@ Freeram:    4.702 GiB </code></pre>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.953   0.066   0.537 </code></pre>
+  0.931   0.074   0.533 </code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -3184,7 +3184,7 @@ Freeram:    4.702 GiB </code></pre>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  3.041   0.046   3.087 </code></pre>
+  3.008   0.057   3.065 </code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -3194,7 +3194,7 @@ Freeram:    4.702 GiB </code></pre>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.389   0.030   0.421 </code></pre>
+  0.389   0.030   0.422 </code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -3326,7 +3326,7 @@ Freeram:    4.702 GiB </code></pre>
 <span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.819   0.060   0.400 </code></pre>
+  0.809   0.061   0.400 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">object_size</span>(read_csv_col)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3423,7 +3423,7 @@ Freeram:    4.702 GiB </code></pre>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
- 13.350   0.889   4.703 </code></pre>
+ 12.953   1.188   5.334 </code></pre>
 </div>
 </div>
 <p>There are 24855910 lines in the new file including the header and the time is shown as above.</p>
@@ -3451,7 +3451,7 @@ Freeram:    4.702 GiB </code></pre>
 <span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
- 30.129   2.439  28.458 </code></pre>
+ 30.276   2.589  28.645 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(labevents)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3500,7 +3500,7 @@ Freeram:    4.702 GiB </code></pre>
 <span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  6.402   1.856   2.258 </code></pre>
+  6.813   1.913   2.265 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the number of rows</span></span>
 <span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(labevents_filitered_parquet)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -3512,7 +3512,7 @@ Freeram:    4.702 GiB </code></pre>
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> labevents.parquet</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>total 4063240
--rw-r--r--@ 1 yuxin  staff  2069791662 Feb  9 17:06 part-0.parquet</code></pre>
+-rw-r--r--@ 1 yuxin  staff  2069791662 Feb  9 21:05 part-0.parquet</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -3556,7 +3556,7 @@ Freeram:    4.702 GiB </code></pre>
 <span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  7.619   1.800   2.496 </code></pre>
+  7.323   1.753   2.577 </code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
