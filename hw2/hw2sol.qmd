@@ -87,10 +87,9 @@ system.time({
 ```
 
 ```{r}
-#| eval: false
-ad_read_csv
-ad_read_csv_base
-ad_fread
+str(ad_read_csv)
+str(ad_read_csv_base)
+str(ad_fread)
 ```
 
 ```{r}
@@ -178,7 +177,7 @@ selected_columns <- c("subject_id", "itemid", "charttime", "valuenum")
 read_csv("~/mimic/hosp/labevents.csv.gz", col_select = selected_columns)
 ```
 
-This code doesn't finish within 3 minutes on my computer. This is due to the large size of `labevents.csv.gz`.Specifying the col_select argument doesn't optimize the file reading process. Even though we're only interested in specific columns, the entire file still needs to be decompressed and parsed initially. 
+This code doesn't finish within 3 minutes on my computer. This is due to the large size of `labevents.csv.gz`. Specifying the col_select argument doesn't optimize the file reading process. Even though we're only interested in specific columns, the entire file still needs to be decompressed and parsed initially. 
 
 ### Q2.3 Ingest subset of `labevents.csv.gz`
 
@@ -204,7 +203,6 @@ gzip > labevents_filtered.csv.gz
 ```
 
 ```{bash}
-cd  ~/Desktop/203B/hw-biostat-203B-2024/hw2
 zcat < labevents_filtered.csv.gz | head -10
 zcat < labevents_filtered.csv.gz | wc -l
 ```
@@ -215,7 +213,7 @@ system.time({
 })
 ```
 
-There are 24855910 lines in the new file including the header  and it takes 3.550s.  
+There are 24855910 lines in the new file including the header  and the time is shown as above. 
 
 ### Q2.4 Ingest `labevents.csv` by Apache Arrow
 
