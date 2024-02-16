@@ -49,6 +49,8 @@ Do a similar visualization for the patient with `subject_id` 10013310 using ggpl
 
 Hint: We need to pull information from data files `patients.csv.gz`, `admissions.csv.gz`, `transfers.csv.gz`, `labevents.csv.gz`, `procedures_icd.csv.gz`, `diagnoses_icd.csv.gz`, `d_icd_procedures.csv.gz`, and `d_icd_diagnoses.csv.gz`. For the big file `labevents.csv.gz`, use the Parquet format you generated in Homework 2. For reproducibility, make the Parquet folder `labevents_pq` available at the current working directory `hw3`, for example, by a symbolic link. Make your code reproducible.
 
+#### Answer
+
 ```{bash}
 #| eval: false
 ln -s ../hw2/labevents_pq  labevents_pq
@@ -172,6 +174,8 @@ ICU stays are a subset of ADT history. This figure shows the vitals of the patie
 
 Do a similar visualization for the patient `10013310`.
 
+#### Answer
+
 ```{bash}
 #| eval: false
 ln -s ../hw2/chartevents_pq  chartevents_pq
@@ -208,7 +212,6 @@ ggplot(sid_cet, aes(x = charttime, y =value,
 ```
 
 
-
 ## Q2. ICU stays
 
 `icustays.csv.gz` (<https://mimic.mit.edu/docs/iv/modules/icu/icustays/>) contains data about Intensive Care Units (ICU) stays. The first 10 lines are
@@ -220,9 +223,43 @@ zcat < ~/mimic/icu/icustays.csv.gz | head
 
 Import `icustays.csv.gz` as a tibble `icustays_tble`. 
 
+#### Answer
+
+```{r}
+icustays_tble <- read_csv("~/mimic/icu/icustays.csv.gz") |>
+  as_tibble() |>
+  print(width = Inf)
+```
+
 ### Q2.2 Summary and visualization
 
-How many unique `subject_id`? Can a `subject_id` have multiple ICU stays? Summarize the number of ICU stays per `subject_id` by graphs. 
+How many unique `subject_id`? Can a `subject_id` have multiple ICU stays? Summarize the number of ICU stays per `subject_id` by graphs.
+
+#### Answer
+
+```{r}
+unique_id <- n_distinct(icustays_tble$subject_id)
+print(unique_id)
+```
+
+```{r}
+icu_stays_summary <- icustays_tble %>%
+  group_by(subject_id) %>%
+  summarise(number_of_stays = n_distinct(stay_id))
+icu_stays_summary
+```
+
+There are 50920 unique `subject_id` and a `subject_id` can have multiple ICU stays. 
+
+```{r}
+ggplot(icu_stays_summary, aes(x = number_of_stays)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
+  coord_cartesian(xlim = c(0, 10)) +  
+  labs(title = "Distribution of Number of ICU Stays per Subject",
+       x = "Number of ICU Stays",
+       y = "Count of Subject IDs") +
+  theme_minimal()
+```
 
 ## Q3. `admissions` data
 
