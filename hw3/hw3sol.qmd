@@ -249,16 +249,18 @@ icu_stays_summary <- icustays_tble %>%
 icu_stays_summary
 ```
 
+```{r}
+arrange(icu_stays_summary, desc(number_of_stays))
+```
+
 There are 50920 unique `subject_id` and a `subject_id` can have multiple ICU stays. 
 
 ```{r}
 ggplot(icu_stays_summary, aes(x = number_of_stays)) +
-  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
-  coord_cartesian(xlim = c(0, 10)) +  
+  geom_bar(fill = "blue", color = "black") +
   labs(title = "Distribution of Number of ICU Stays per Subject",
        x = "Number of ICU Stays",
-       y = "Count of Subject IDs") +
-  theme_minimal()
+       y = "Count of Subject IDs") 
 ```
 
 ## Q3. `admissions` data
@@ -272,6 +274,12 @@ zcat < ~/mimic/hosp/admissions.csv.gz | head
 
 Import `admissions.csv.gz` as a tibble `admissions_tble`.
 
+```{r}
+admissions_tble <- read_csv("~/mimic/hosp/admissions.csv.gz") |>
+  as_tibble() |>
+  print(width = Inf)
+```
+  
 ### Q3.2 Summary and visualization
 
 Summarize the following information by graphics and explain any patterns you see.
@@ -284,6 +292,70 @@ Summarize the following information by graphics and explain any patterns you see
 According to the [MIMIC-IV documentation](https://mimic.mit.edu/docs/iv/about/concepts/#date-shifting), 
 
 > All dates in the database have been shifted to protect patient confidentiality. Dates will be internally consistent for the same patient, but randomly distributed in the future. Dates of birth which occur in the present time are not true dates of birth. Furthermore, dates of birth which occur before the year 1900 occur if the patient is older than 89. In these cases, the patient’s age at their first admission has been fixed to 300.
+
+
+
+#### Answer
+
+```{r}
+num_of_admission <- admissions_tble %>%
+  group_by(subject_id) %>%
+  summarise(number_of_admission = n_distinct(hadm_id))
+num_of_admission
+```
+
+
+```{r}
+ggplot(num_of_admission, aes(x = number_of_admission)) +
+  geom_bar(fill = "blue", color = "black") +
+  labs(title = "Distribution of Number of Admissions per Patient",
+       x = "Number of Admissions",
+       y = "Count of Patients") +
+  theme_minimal()
+```
+
+```{r}
+ggplot(num_of_admission, aes(y = number_of_admission)) +
+  geom_boxplot(fill = "lightblue", color = "black") +
+  labs(title = "Boxplot of Number of Admissions per Patient",
+       x = "",
+       y = "Number of Admissions") +
+  theme_minimal()
+plot(num_of_admission$number_of_admission)
+summary(num_of_admission$number_of_admission)
+```
+
+
+From the plot above, we notice that the number of admissions per patient is right-skewed. Most patients have 1 or 2 admissions. There are also some outliers and the maximum number of admissions per patient is 238. 
+
+
+```{r}
+admissions_tble <- admissions_tble |>
+  mutate(admission_hour = hour(admittime))
+ggplot(admissions_tble, aes(x = admission_hour)) +
+  geom_bar() +
+  labs(title = "Distribution of Admission Hours", x = "Hour of Admission", y = "Count") +
+  theme_minimal()
+boxplot(admissions_tble$admission_hour)
+```
+
+
+```{r}
+admissions_tble <- admissions_tble %>%
+  mutate(admission_minute = minute(admittime))
+ggplot(admissions_tble, aes(x = admission_minute)) +
+  geom_bar() +
+  labs(title = "Distribution of Admission Minutes", x = "Minute of Admission", y = "Count") +
+  theme_minimal()
+```
+```{r}
+admissions_tble <- admissions_tble %>%
+  mutate(length_of_stay = as.numeric(difftime(dischtime, admittime, units = "days")))
+ggplot(admissions_tble, aes(x = length_of_stay)) +
+  geom_bar() +
+  labs(title = "Length of Hospital Stay", x = "Length of Stay (Days)", y = "Count") +
+  theme_minimal()
+```
 
 ## Q4. `patients` data
 
