@@ -368,9 +368,35 @@ zcat < ~/mimic/hosp/patients.csv.gz | head
 
 Import `patients.csv.gz` (<https://mimic.mit.edu/docs/iv/modules/hosp/patients/>) as a tibble `patients_tble`.
 
+#### Answer
+
+```{r}
+patients_tble <- read_csv("~/mimic/hosp/patients.csv.gz") |>
+  as_tibble() |>
+  print(width = Inf)
+```
+
 ### Q4.2 Summary and visualization
 
 Summarize variables `gender` and `anchor_age` by graphics, and explain any patterns you see.
+
+#### Answer
+
+```{r}
+patients_tble %>%
+  ggplot() +
+  geom_bar(aes(x = gender)) +
+  theme_minimal() +
+  labs(title = "Gender Distribution", x = "Gender", y = "Count")
+```
+
+```{r}
+patients_tble %>%
+  ggplot() +
+  geom_bar(aes(x = anchor_age), bins = 30) +
+  theme_minimal() +
+  labs(title = "Age Distribution", x = "Age", y = "Count")
+```
 
 ## Q5. Lab results
 
@@ -388,8 +414,9 @@ We are interested in the lab measurements of creatinine (50912), potassium (5097
 
 ![](labevents_tble.png)
 
-
 Hint: Use the Parquet format you generated in Homework 2. For reproducibility, make `labevents_pq` folder available at the current working directory `hw3`, for example, by a symbolic link.
+
+
 
 ## Q6. Vitals from charted events
 
