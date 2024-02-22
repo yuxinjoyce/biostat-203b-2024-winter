@@ -416,7 +416,54 @@ We are interested in the lab measurements of creatinine (50912), potassium (5097
 
 Hint: Use the Parquet format you generated in Homework 2. For reproducibility, make `labevents_pq` folder available at the current working directory `hw3`, for example, by a symbolic link.
 
+```{r}
+relevant_itemids <- c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)
 
+labevents_filtered <- arrow::open_dataset("labevents_pq") |>
+  filter(itemid %in% relevant_itemids, subject_id %in% icustays_tble$subject_id) |> 
+  select(subject_id, itemid, valuenum, storetime) |>
+  collect() |>
+  print(width = Inf)
+```
+
+
+
+```{r}
+icustays_tble1 <- icustays_tble |>
+  select(subject_id, intime, stay_id) |>
+  print(width = Inf)
+```
+
+```{r}
+aggregated_data <- labevents_filtered %>%
+  left_join(icustays_tble1, by = "subject_id") %>%
+  filter(storetime < intime) %>%
+  group_by(subject_id, stay_id, itemid) %>%
+  summarize(last_measurement = last(valuenum, order_by = storetime)) %>%
+  collect() %>%
+  print(width = Inf)
+
+```
+
+```{r}
+d_labitems <- read_csv("~/mimic/hosp/d_labitems.csv.gz") |>
+  as_tibble() |>
+  print(width = Inf)
+```
+
+```{r}
+wide_data <- aggregated_data %>%
+  pivot_wider(names_from = itemid, values_from = last_measurement)
+
+print(wide_data, width = Inf)
+```
+
+```{r}
+labevents_tble <- wide_data %>%
+  rename(creatinine = `50912`, potassium = `50971`, sodium = `50983`, chloride = `50902`, bicarbonate = `50882`, hematocrit = `51221`, white_blood_cell_count = `51301`, glucose = `50931`)
+
+print(labevents_tble, width = Inf)
+```
 
 ## Q6. Vitals from charted events
 

@@ -3221,8 +3221,8 @@ Attaching package: &#39;R.utils&#39;</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>memuse<span class="sc">::</span><span class="fu">Sys.meminfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Totalram:   16.000 GiB 
-Freeram:   175.672 MiB </code></pre>
+<pre><code>Totalram:  16.000 GiB 
+Freeram:   90.672 MiB </code></pre>
 </div>
 </div>
 <p>In this exercise, we use tidyverse (ggplot2, dplyr, etc) to explore the <a href="https://mimic.mit.edu/docs/iv/">MIMIC-IV</a> data introduced in <a href="https://ucla-biostat-203b.github.io/2024winter/hw/hw1/hw1.html">homework 1</a> and to build a cohort of ICU stays.</p>
@@ -4203,12 +4203,196 @@ parameters: `bins`</code></pre>
 <p>We are interested in the lab measurements of creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931). Retrieve a subset of <code>labevents.csv.gz</code> that only containing these items for the patients in <code>icustays_tble</code>. Further restrict to the last available measurement (by <code>storetime</code>) before the ICU stay. The final <code>labevents_tble</code> should have one row per ICU stay and columns for each lab measurement.</p>
 <p><img src="labevents_tble.png" class="img-fluid"></p>
 <p>Hint: Use the Parquet format you generated in Homework 2. For reproducibility, make <code>labevents_pq</code> folder available at the current working directory <code>hw3</code>, for example, by a symbolic link.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>relevant_itemids <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">50912</span>, <span class="dv">50971</span>, <span class="dv">50983</span>, <span class="dv">50902</span>, <span class="dv">50882</span>, <span class="dv">51221</span>, <span class="dv">51301</span>, <span class="dv">50931</span>)</span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb102-3"><a href="#cb102-3" aria-hidden="true" tabindex="-1"></a>labevents_filtered <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">&quot;labevents_pq&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb102-4"><a href="#cb102-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(itemid <span class="sc">%in%</span> relevant_itemids, subject_id <span class="sc">%in%</span> icustays_tble<span class="sc">$</span>subject_id) <span class="sc">|&gt;</span> </span>
+<span id="cb102-5"><a href="#cb102-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, itemid, valuenum, storetime) <span class="sc">|&gt;</span></span>
+<span id="cb102-6"><a href="#cb102-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">|&gt;</span></span>
+<span id="cb102-7"><a href="#cb102-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 13,473,870 × 4
+   subject_id itemid valuenum storetime          
+        &lt;int&gt;  &lt;int&gt;    &lt;dbl&gt; &lt;dttm&gt;             
+ 1   10000032  50882     27   2180-03-23 09:40:00
+ 2   10000032  50902    101   2180-03-23 09:40:00
+ 3   10000032  50912      0.4 2180-03-23 09:40:00
+ 4   10000032  50971      3.7 2180-03-23 09:40:00
+ 5   10000032  50983    136   2180-03-23 09:40:00
+ 6   10000032  50931     95   2180-03-23 08:56:00
+ 7   10000032  51221     45.4 2180-03-23 08:19:00
+ 8   10000032  51301      3   2180-03-23 08:19:00
+ 9   10000032  51221     42.6 2180-05-06 15:42:00
+10   10000032  51301      5   2180-05-06 15:42:00
+# ℹ 13,473,860 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>icustays_tble1 <span class="ot">&lt;-</span> icustays_tble <span class="sc">|&gt;</span></span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, intime, stay_id) <span class="sc">|&gt;</span></span>
+<span id="cb104-3"><a href="#cb104-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 73,181 × 3
+   subject_id intime               stay_id
+        &lt;dbl&gt; &lt;dttm&gt;                 &lt;dbl&gt;
+ 1   10000032 2180-07-23 14:00:00 39553978
+ 2   10000980 2189-06-27 08:42:00 39765666
+ 3   10001217 2157-11-20 19:18:02 37067082
+ 4   10001217 2157-12-19 15:42:24 34592300
+ 5   10001725 2110-04-11 15:52:22 31205490
+ 6   10001884 2131-01-11 04:20:05 37510196
+ 7   10002013 2160-05-18 10:00:53 39060235
+ 8   10002155 2131-03-09 21:33:00 32358465
+ 9   10002155 2129-08-04 12:45:00 33685454
+10   10002155 2130-09-24 00:50:00 31090461
+# ℹ 73,171 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>aggregated_data <span class="ot">&lt;-</span> labevents_filtered <span class="sc">%&gt;%</span></span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(icustays_tble1, <span class="at">by =</span> <span class="st">&quot;subject_id&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb106-3"><a href="#cb106-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(storetime <span class="sc">&lt;</span> intime) <span class="sc">%&gt;%</span></span>
+<span id="cb106-4"><a href="#cb106-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject_id, stay_id, itemid) <span class="sc">%&gt;%</span></span>
+<span id="cb106-5"><a href="#cb106-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">last_measurement =</span> <span class="fu">last</span>(valuenum, <span class="at">order_by =</span> storetime)) <span class="sc">%&gt;%</span></span>
+<span id="cb106-6"><a href="#cb106-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb106-7"><a href="#cb106-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in left_join(., icustays_tble1, by = &quot;subject_id&quot;): Detected an unexpected many-to-many relationship between `x` and `y`.
+ℹ Row 845 of `x` matches multiple rows in `y`.
+ℹ Row 1 of `y` matches multiple rows in `x`.
+ℹ If a many-to-many relationship is expected, set `relationship =
+  &quot;many-to-many&quot;` to silence this warning.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by &#39;subject_id&#39;, &#39;stay_id&#39;. You can override
+using the `.groups` argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 525,174 × 4
+# Groups:   subject_id, stay_id [68,467]
+   subject_id  stay_id itemid last_measurement
+        &lt;dbl&gt;    &lt;dbl&gt;  &lt;int&gt;            &lt;dbl&gt;
+ 1   10000032 39553978  50882             25  
+ 2   10000032 39553978  50902             95  
+ 3   10000032 39553978  50912              0.7
+ 4   10000032 39553978  50931            102  
+ 5   10000032 39553978  50971              6.7
+ 6   10000032 39553978  50983            126  
+ 7   10000032 39553978  51221             41.1
+ 8   10000032 39553978  51301              6.9
+ 9   10000980 39765666  50882             21  
+10   10000980 39765666  50902            109  
+# ℹ 525,164 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>d_labitems <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;~/mimic/hosp/d_labitems.csv.gz&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 1622 Columns: 4
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr (3): label, fluid, category
+dbl (1): itemid
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1,622 × 4
+   itemid label                               fluid category 
+    &lt;dbl&gt; &lt;chr&gt;                               &lt;chr&gt; &lt;chr&gt;    
+ 1  50801 Alveolar-arterial Gradient          Blood Blood Gas
+ 2  50802 Base Excess                         Blood Blood Gas
+ 3  50803 Calculated Bicarbonate, Whole Blood Blood Blood Gas
+ 4  50804 Calculated Total CO2                Blood Blood Gas
+ 5  50805 Carboxyhemoglobin                   Blood Blood Gas
+ 6  50806 Chloride, Whole Blood               Blood Blood Gas
+ 7  50808 Free Calcium                        Blood Blood Gas
+ 8  50809 Glucose                             Blood Blood Gas
+ 9  50810 Hematocrit, Calculated              Blood Blood Gas
+10  50811 Hemoglobin                          Blood Blood Gas
+# ℹ 1,612 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a>wide_data <span class="ot">&lt;-</span> aggregated_data <span class="sc">%&gt;%</span></span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> itemid, <span class="at">values_from =</span> last_measurement)</span>
+<span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb113-4"><a href="#cb113-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(wide_data, <span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 68,467 × 10
+# Groups:   subject_id, stay_id [68,467]
+   subject_id  stay_id `50882` `50902` `50912` `50931` `50971` `50983` `51221`
+        &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+ 1   10000032 39553978      25      95     0.7     102     6.7     126    41.1
+ 2   10000980 39765666      21     109     2.3      89     3.9     144    27.3
+ 3   10001217 34592300      30     104     0.5      87     4.1     142    37.4
+ 4   10001217 37067082      22     108     0.6     112     4.2     142    38.1
+ 5   10001725 31205490      NA      98    NA        NA     4.1     139    NA  
+ 6   10001884 37510196      30      88     1.1     141     4.5     130    39.7
+ 7   10002013 39060235      24     102     0.9     288     3.5     137    34.9
+ 8   10002155 31090461      23      98     2.8     117     4.9     135    25.5
+ 9   10002155 32358465      26      85     1.4     133     5.7     120    22.4
+10   10002155 33685454      24     105     1.1     138     4.6     139    39.7
+   `51301`
+     &lt;dbl&gt;
+ 1     6.9
+ 2     5.3
+ 3     5.4
+ 4    15.7
+ 5    NA  
+ 6    12.2
+ 7     7.2
+ 8    17.9
+ 9     9.8
+10     7.9
+# ℹ 68,457 more rows</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a>labevents_tble <span class="ot">&lt;-</span> wide_data <span class="sc">%&gt;%</span></span>
+<span id="cb115-2"><a href="#cb115-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">creatinine =</span> <span class="st">`</span><span class="at">50912</span><span class="st">`</span>, <span class="at">potassium =</span> <span class="st">`</span><span class="at">50971</span><span class="st">`</span>, <span class="at">sodium =</span> <span class="st">`</span><span class="at">50983</span><span class="st">`</span>, <span class="at">chloride =</span> <span class="st">`</span><span class="at">50902</span><span class="st">`</span>, <span class="at">bicarbonate =</span> <span class="st">`</span><span class="at">50882</span><span class="st">`</span>, <span class="at">hematocrit =</span> <span class="st">`</span><span class="at">51221</span><span class="st">`</span>, <span class="at">white_blood_cell_count =</span> <span class="st">`</span><span class="at">51301</span><span class="st">`</span>, <span class="at">glucose =</span> <span class="st">`</span><span class="at">50931</span><span class="st">`</span>)</span>
+<span id="cb115-3"><a href="#cb115-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-4"><a href="#cb115-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(labevents_tble, <span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 68,467 × 10
+# Groups:   subject_id, stay_id [68,467]
+   subject_id  stay_id bicarbonate chloride creatinine glucose potassium sodium
+        &lt;dbl&gt;    &lt;dbl&gt;       &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;
+ 1   10000032 39553978          25       95        0.7     102       6.7    126
+ 2   10000980 39765666          21      109        2.3      89       3.9    144
+ 3   10001217 34592300          30      104        0.5      87       4.1    142
+ 4   10001217 37067082          22      108        0.6     112       4.2    142
+ 5   10001725 31205490          NA       98       NA        NA       4.1    139
+ 6   10001884 37510196          30       88        1.1     141       4.5    130
+ 7   10002013 39060235          24      102        0.9     288       3.5    137
+ 8   10002155 31090461          23       98        2.8     117       4.9    135
+ 9   10002155 32358465          26       85        1.4     133       5.7    120
+10   10002155 33685454          24      105        1.1     138       4.6    139
+   hematocrit white_blood_cell_count
+        &lt;dbl&gt;                  &lt;dbl&gt;
+ 1       41.1                    6.9
+ 2       27.3                    5.3
+ 3       37.4                    5.4
+ 4       38.1                   15.7
+ 5       NA                     NA  
+ 6       39.7                   12.2
+ 7       34.9                    7.2
+ 8       25.5                   17.9
+ 9       22.4                    9.8
+10       39.7                    7.9
+# ℹ 68,457 more rows</code></pre>
+</div>
+</div>
 </section>
 <section id="q6.-vitals-from-charted-events" class="level2">
 <h2 class="anchored" data-anchor-id="q6.-vitals-from-charted-events">Q6. Vitals from charted events</h2>
 <p><code>chartevents.csv.gz</code> (<a href="https://mimic.mit.edu/docs/iv/modules/icu/chartevents/" class="uri">https://mimic.mit.edu/docs/iv/modules/icu/chartevents/</a>) contains all the charted data available for a patient. During their ICU stay, the primary repository of a patient’s information is their electronic chart. The <code>itemid</code> variable indicates a single measurement type in the database. The <code>value</code> variable is the value measured for <code>itemid</code>. The first 10 lines of <code>chartevents.csv.gz</code> are</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb102"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/chartevents.csv.gz <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb117"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/chartevents.csv.gz <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>subject_id,hadm_id,stay_id,caregiver_id,charttime,storetime,itemid,value,valuenum,valueuom,warning
 10000032,29079034,39553978,47007,2180-07-23 21:01:00,2180-07-23 22:15:00,220179,82,82,mmHg,0
@@ -4224,7 +4408,7 @@ parameters: `bins`</code></pre>
 </div>
 <p><code>d_items.csv.gz</code> (<a href="https://mimic.mit.edu/docs/iv/modules/icu/d_items/" class="uri">https://mimic.mit.edu/docs/iv/modules/icu/d_items/</a>) is the dictionary for the <code>itemid</code> in <code>chartevents.csv.gz</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/d_items.csv.gz <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/d_items.csv.gz <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>itemid,label,abbreviation,linksto,category,unitname,param_type,lownormalvalue,highnormalvalue
 220001,Problem List,Problem List,chartevents,General,,Text,,
