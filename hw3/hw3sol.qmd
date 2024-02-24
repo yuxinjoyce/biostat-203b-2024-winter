@@ -44,7 +44,10 @@ Visualizing a patient's encounters in a health care system is a common task in c
 
 A patient's ADT history records the time of admission, discharge, and transfer in the hospital. This figure shows the ADT history of the patient with `subject_id` 10001217 in the MIMIC-IV data. The x-axis is the calendar time, and the y-axis is the type of event (ADT, lab, procedure). The color of the line segment represents the care unit. The size of the line segment represents whether the care unit is an ICU/CCU. The crosses represent lab events, and the shape of the dots represents the type of procedure. The title of the figure shows the patient's demographic information and the subtitle shows top 3 diagnoses.
 
-![](10001217_adt.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ucla-biostat-203b/2024winter/main/hw/hw3/10001217_adt.png" width="100%">
+</p>
+
 Do a similar visualization for the patient with `subject_id` 10013310 using ggplot.
 
 Hint: We need to pull information from data files `patients.csv.gz`, `admissions.csv.gz`, `transfers.csv.gz`, `labevents.csv.gz`, `procedures_icd.csv.gz`, `diagnoses_icd.csv.gz`, `d_icd_procedures.csv.gz`, and `d_icd_diagnoses.csv.gz`. For the big file `labevents.csv.gz`, use the Parquet format you generated in Homework 2. For reproducibility, make the Parquet folder `labevents_pq` available at the current working directory `hw3`, for example, by a symbolic link. Make your code reproducible.
@@ -59,53 +62,43 @@ sid <- 10013310
 
 ```{r}
 sid_adt <- read_csv("~/mimic/hosp/transfers.csv.gz") %>%
-  filter(subject_id == sid & eventtype != "discharge") %>%
-  print(width = Inf)
+  filter(subject_id == sid & eventtype != "discharge") 
 ```
 
 ```{r}
 sid_lab <- arrow::open_dataset("labevents_pq") |>
   filter(subject_id == sid) |>
-  collect() |>
-  print(width = Inf)
+  collect() 
 ```
 
 
 ```{r}
 sid_hpcd <- read_csv("~/mimic/hosp/procedures_icd.csv.gz") %>%
   filter(subject_id == sid) %>%
-  mutate(chartdate = as.POSIXct(chartdate)) %>%
-  print(width = Inf)
-```
-
-
-
-```{r}
-sid_ipcd <- read_csv("~/mimic/hosp/d_icd_procedures.csv.gz") |>
-  print(width = Inf)
+  mutate(chartdate = as.POSIXct(chartdate)) 
 ```
 
 ```{r}
-sid_pcd <- left_join(sid_hpcd , sid_ipcd, by = "icd_code") |>
-  print(width = Inf)
+sid_ipcd <- read_csv("~/mimic/hosp/d_icd_procedures.csv.gz") 
+```
+
+```{r}
+sid_pcd <- left_join(sid_hpcd , sid_ipcd, by = "icd_code") 
 ```
 
 ```{r}
 sid_pat <- read_csv("~/mimic/hosp/patients.csv.gz") |>
-  filter(subject_id == sid) |>
-  print(width = Inf)
+  filter(subject_id == sid) 
 ```
 
 ```{r}
 sid_ad <- read_csv("~/mimic/hosp/admissions.csv.gz") |>
-  filter(subject_id == sid) |>
-  print(width = Inf)
+  filter(subject_id == sid) 
 ```
 
 ```{r}
 sid_dgn <- read_csv("~/mimic/hosp/diagnoses_icd.csv.gz") |>
-  filter(subject_id == sid) |>
-  print(width = Inf)
+  filter(subject_id == sid) 
 ```
 
 ```{r}
@@ -113,10 +106,8 @@ sid_ddgn <- read_csv("~/mimic/hosp/d_icd_diagnoses.csv.gz")
 top_sid_ddgn <- sid_dgn %>%
   slice_head(n = 3) %>%  
   ungroup() %>%  
-  inner_join(sid_ddgn, by = "icd_code") %>% 
-  print(width = Inf)  
+  inner_join(sid_ddgn, by = "icd_code") 
 ```
-
 
 ```{r, eval = TRUE, fig.width=13, fig.height=7}
   ggplot() +
@@ -169,7 +160,9 @@ top_sid_ddgn <- sid_dgn %>%
 
 ICU stays are a subset of ADT history. This figure shows the vitals of the patient `10001217` during ICU stays. The x-axis is the calendar time, and the y-axis is the value of the vital. The color of the line represents the type of vital. The facet grid shows the abbreviation of the vital and the stay ID.
 
-![](10001217_icu.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ucla-biostat-203b/2024winter/main/hw/hw3/10001217_icu.png" width="100%">
+</p>
 
 Do a similar visualization for the patient `10013310`.
 
@@ -177,8 +170,7 @@ Do a similar visualization for the patient `10013310`.
 
 ```{r}
 sid_ite <- read_csv("~/mimic/icu/d_items.csv.gz") |>
-  filter(abbreviation %in% c("HR", "NBPd", "NBPs", "RR", "Temperature F")) |>
-  print(width = Inf)
+  filter(abbreviation %in% c("HR", "NBPd", "NBPs", "RR", "Temperature F")) 
 ```
 
 ```{r}
@@ -186,11 +178,10 @@ sid_cet <- arrow::open_dataset("chartevents_pq") |>
   filter(subject_id == sid) |>
   collect() |>
   inner_join(sid_ite, by = "itemid") |>
-  mutate(value = as.numeric(value)) |>
-  print(width = Inf)
+  mutate(value = as.numeric(value)) 
 ```
 
-```{r}
+```{r, eval = TRUE, fig.width=13, fig.height=7}
 ggplot(sid_cet) +
   geom_line(aes(x = charttime, y =value,group= itemid, 
                     color = abbreviation), na.rm = T) +
@@ -201,7 +192,7 @@ ggplot(sid_cet) +
   theme_light() +
   theme(
     legend.position = "none",
-    axis.text.x = element_text(angle = 20, vjust = 1)
+    axis.text.x = element_text(angle = 20, hjust = 1)
   ) 
 ```
 
@@ -243,18 +234,16 @@ icu_stays_summary <- icustays_tble %>%
 icu_stays_summary
 ```
 
-```{r}
-arrange(icu_stays_summary, desc(number_of_stays))
-```
 
 There are 50920 unique `subject_id` and a `subject_id` can have multiple ICU stays. 
 
 ```{r}
 ggplot(icu_stays_summary, aes(x = number_of_stays)) +
-  geom_bar(fill = "blue", color = "black") +
+  geom_bar() +
   labs(title = "Distribution of Number of ICU Stays per Subject",
        x = "Number of ICU Stays",
-       y = "Count of Subject IDs") 
+       y = "Count of Subject IDs") + 
+  theme_minimal()
 ```
 
 From the plot above, we find that most of the subjects had very few ICU stay, with a steep decline in the number of subjects as the number of ICU stays increases. The tallest bar is at the leftmost side of the graph, representing lowest number of ICU stays is 1 time, and this count is by far the highest.However, there were also some subjects who have multiple ICU stays. The most one had 37 stays. 
@@ -305,7 +294,7 @@ num_of_admission <- admissions_tble %>%
 
 ```{r}
 ggplot(num_of_admission, aes(x = number_of_admission)) +
-  geom_bar(fill = "blue", color = "black") +
+  geom_bar() +
   labs(title = "Distribution of Number of Admissions per Patient",
        x = "Number of Admissions",
        y = "Count of Patients") +
@@ -314,12 +303,6 @@ ggplot(num_of_admission, aes(x = number_of_admission)) +
 
 
 ```{r}
-ggplot(num_of_admission, aes(y = number_of_admission)) +
-  geom_boxplot(fill = "lightblue", color = "black") +
-  labs(title = "Boxplot of Number of Admissions per Patient",
-       x = "",
-       y = "Number of Admissions") +
-  theme_minimal()
 summary(num_of_admission$number_of_admission)
 ```
 
@@ -425,9 +408,14 @@ zcat < ~/mimic/hosp/d_labitems.csv.gz | head
 
 We are interested in the lab measurements of creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931). Retrieve a subset of `labevents.csv.gz` that only containing these items for the patients in `icustays_tble`. Further restrict to the last available measurement (by `storetime`) before the ICU stay. The final `labevents_tble` should have one row per ICU stay and columns for each lab measurement.
 
-![](labevents_tble.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ucla-biostat-203b/2024winter/main/hw/hw3/labevents_tble.png" width="100%">
+</p>
 
 Hint: Use the Parquet format you generated in Homework 2. For reproducibility, make `labevents_pq` folder available at the current working directory `hw3`, for example, by a symbolic link.
+
+#### Answer
+
 
 ```{r}
 relevant_itemids <- c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)
@@ -435,16 +423,13 @@ relevant_itemids <- c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)
 labevents_filtered <- arrow::open_dataset("labevents_pq") |>
   filter(itemid %in% relevant_itemids, subject_id %in% icustays_tble$subject_id) |> 
   select(subject_id, itemid, valuenum, storetime) |>
-  collect() |>
-  print(width = Inf)
+  collect() 
 ```
-
 
 
 ```{r}
 icustays_tble1 <- icustays_tble |>
-  select(subject_id, intime, stay_id, outtime) |>
-  print(width = Inf)
+  select(subject_id, intime, stay_id, outtime) 
 ```
 
 ```{r}
@@ -455,7 +440,6 @@ aggregated_data <- labevents_filtered %>%
   summarize(last_measurement = last(valuenum, order_by = storetime)) %>%
   collect() %>%
   print(width = Inf)
-
 ```
 
 ```{r}
@@ -494,7 +478,10 @@ zcat < ~/mimic/icu/d_items.csv.gz | head
 
 We are interested in the vitals for ICU patients: heart rate (220045), systolic non-invasive blood pressure (220179), diastolic non-invasive blood pressure (220180), body temperature in Fahrenheit (223761), and respiratory rate (220210). Retrieve a subset of `chartevents.csv.gz` only containing these items for the patients in `icustays_tble`. Further restrict to the first vital measurement within the ICU stay. The final `chartevents_tble` should have one row per ICU stay and columns for each vital measurement. 
 
-![](chartevents_tble.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ucla-biostat-203b/2024winter/main/hw/hw3/chartevents_tble.png" width="100%">
+</p>
+
 
 Hint: Use the Parquet format you generated in Homework 2. For reproducibility, make `chartevents_pq` folder available at the current working directory, for example, by a symbolic link.
 
@@ -506,8 +493,7 @@ re_itemids <- c(220045, 220179, 220180, 223761, 220210)
 chartevents <- arrow::open_dataset("chartevents_pq") |>
   filter(itemid %in% re_itemids, subject_id %in% icustays_tble$subject_id) |> 
   select(subject_id, itemid, valuenum, charttime) |>
-  collect() |>
-  print(width = Inf)
+  collect() 
 ```
 
 ```{r}
@@ -516,8 +502,7 @@ aggregated_data2 <- chartevents %>%
   filter(charttime >= intime & charttime <= outtime) %>%
   group_by(subject_id, stay_id, itemid) %>%
   summarize(first_measurement = first(valuenum, order_by = charttime)) %>%
-  collect() %>%
-  print(width = Inf)
+  collect() 
 ```
 
 ```{r}
@@ -538,9 +523,6 @@ chartevents_tble <- aggregated_data2 %>%
 print(chartevents_tble, width = Inf)
 ```
 
-
-
-
 ## Q7. Putting things together
 
 Let us create a tibble `mimic_icu_cohort` for all ICU stays, where rows are all ICU stays of adults (age at `intime` >= 18) and columns contain at least following variables
@@ -553,7 +535,10 @@ Let us create a tibble `mimic_icu_cohort` for all ICU stays, where rows are all 
 
 The final `mimic_icu_cohort` should have one row per ICU stay and columns for each variable.
 
-![](mimic_icu_cohort.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ucla-biostat-203b/2024winter/main/hw/hw3/mimic_icu_cohort.png" width="100%">
+</p>
+
 
 #### Answer
 
