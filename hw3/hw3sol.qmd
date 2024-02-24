@@ -175,12 +175,6 @@ Do a similar visualization for the patient `10013310`.
 
 #### Answer
 
-```{bash}
-#| eval: false
-ln -s ../hw2/chartevents_pq  chartevents_pq
-```
-
-
 ```{r}
 sid_ite <- read_csv("~/mimic/icu/d_items.csv.gz") |>
   filter(abbreviation %in% c("HR", "NBPd", "NBPs", "RR", "Temperature F")) |>
@@ -262,15 +256,14 @@ ggplot(icu_stays_summary, aes(x = number_of_stays)) +
        x = "Number of ICU Stays",
        y = "Count of Subject IDs") 
 ```
-From the plot above, we find that most of the subjects have only one ICU stay. However, there are also some subjects who have multiple
 
-
-
+From the plot above, we find that most of the subjects had very few ICU stay, with a steep decline in the number of subjects as the number of ICU stays increases. The tallest bar is at the leftmost side of the graph, representing lowest number of ICU stays is 1 time, and this count is by far the highest.However, there were also some subjects who have multiple ICU stays. The most one had 37 stays. 
 
 
 ## Q3. `admissions` data
 
 Information of the patients admitted into hospital is available in `admissions.csv.gz`. See <https://mimic.mit.edu/docs/iv/modules/hosp/admissions/> for details of each field in this file. The first 10 lines are
+
 ```{bash}
 zcat < ~/mimic/hosp/admissions.csv.gz | head
 ```
@@ -285,9 +278,6 @@ admissions_tble <- read_csv("~/mimic/hosp/admissions.csv.gz") |>
   print(width = Inf)
 ```
 
-```{r}
-admissions_tble
-```
 
 ### Q3.2 Summary and visualization
 
@@ -310,7 +300,6 @@ According to the [MIMIC-IV documentation](https://mimic.mit.edu/docs/iv/about/co
 num_of_admission <- admissions_tble %>%
   group_by(subject_id) %>%
   summarise(number_of_admission = n_distinct(hadm_id))
-num_of_admission
 ```
 
 
@@ -324,10 +313,6 @@ ggplot(num_of_admission, aes(x = number_of_admission)) +
 ```
 
 
-
-
-
-
 ```{r}
 ggplot(num_of_admission, aes(y = number_of_admission)) +
   geom_boxplot(fill = "lightblue", color = "black") +
@@ -335,45 +320,49 @@ ggplot(num_of_admission, aes(y = number_of_admission)) +
        x = "",
        y = "Number of Admissions") +
   theme_minimal()
-plot(num_of_admission$number_of_admission)
 summary(num_of_admission$number_of_admission)
 ```
 
-
-From the plot above, we notice that the number of admissions per patient is right-skewed. Most patients have 1 or 2 admissions. There are also some outliers and the maximum number of admissions per patient is 238. 
+From the plots above, we notice that the number of admissions per patient is right-skewed. Most patients have 1 or 2 admissions. There are also some outliers and the maximum number of admissions per patient is 238. 
 
 
 ```{r}
-admissions_tble <- admissions_tble |>
+admissions_tble3 <- admissions_tble |>
   mutate(admission_hour = hour(admittime))
-ggplot(admissions_tble, aes(x = admission_hour)) +
+ggplot(admissions_tble3, aes(x = admission_hour)) +
   geom_bar() +
   labs(title = "Distribution of Admission Hours", x = "Hour of Admission", y = "Count") +
   theme_minimal()
-boxplot(admissions_tble$admission_hour)
+boxplot(admissions_tble3$admission_hour)
 ```
 
 
+The plot suggests that admissions are correlated with typical daily activity patterns. The most significant peak occurs just after midnight, which could be a result of a systematic recording practice. There are also peaks at 7 am , which could be due to the start of a day job.
+
+
+
 ```{r}
-admissions_tble <- admissions_tble %>%
+admissions_tble1 <- admissions_tble %>%
   mutate(admission_minute = minute(admittime))
-ggplot(admissions_tble, aes(x = admission_minute)) +
+ggplot(admissions_tble, aes(x = minute(admittime))) +
   geom_bar() +
   labs(title = "Distribution of Admission Minutes", x = "Minute of Admission", y = "Count") +
   theme_minimal()
 ```
+
 It showed peaks at the 0, 15, 30, and 45-minute marks of each hour, suggesting that admissions are more likely to be recorded or occur at these times. This might be due to the way data is collected or certain administrative processes that happen at these times.
 
 
 ```{r}
-admissions_tble <- admissions_tble %>%
+admissions_tble2 <- admissions_tble %>%
   mutate(length_of_stay = as.numeric(difftime(dischtime, admittime, units = "days")))
 
-ggplot(admissions_tble, aes(x = length_of_stay)) +
+ggplot(admissions_tble2, aes(x = length_of_stay)) +
   geom_bar() +
   labs(title = "Length of Hospital Stay", x = "Length of Stay (Days)", y = "Count") +
   theme_minimal()
 ```
+
 The plot indicates that most hospital stays are short, with a rapid decrease in frequency as the length of stay increases. This suggests that while most patients are discharged relatively quickly, a smaller number have very long stays. 
 
 
@@ -509,6 +498,8 @@ We are interested in the vitals for ICU patients: heart rate (220045), systolic 
 
 Hint: Use the Parquet format you generated in Homework 2. For reproducibility, make `chartevents_pq` folder available at the current working directory, for example, by a symbolic link.
 
+### Answer
+
 ```{r}
 re_itemids <- c(220045, 220179, 220180, 223761, 220210)
 
@@ -601,25 +592,48 @@ Summarize the following information about the ICU stay cohort `mimic_icu_cohort`
 
 #### Answer
 
+**race**
+
+```{r}
+demographic_func <- function(data, demographic) {
+  data %>%
+    group_by(!!sym(demographic)) %>%
+    summarize(mean_los = mean(los, na.rm = TRUE), 
+              median_los = median(los, na.rm = TRUE),
+              n = n()) %>%
+    ungroup()
+}
+
+race_summary <- demographic_func(mimic_icu_cohort, "race")
+
+race_summary %>% 
+  group_by(race) %>% 
+  summarise(
+    count = n(), 
+    mean = mean(mean_los,na.rm = TRUE),
+    min = min(mean_los,na.rm = TRUE), 
+    max = max(mean_los,na.rm =TRUE))
+```
+
+
+
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = race, y = los, fill = race)) +
   geom_boxplot(width = 0.7) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1),
-        legend.position = "none") +
   labs(title = "Length of ICU Stay by Race",
        x = "Race",
-       y = "Length of Stay (days)")
+       y = "Length of Stay (days)") +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  ) 
+
 ```
 
-```{r}
-ggplot(mimic_icu_cohort, aes(x = insurance, y = los)) +
-  geom_boxplot(width = 0.7) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1),
-        legend.position = "none") +
-  labs(title = "Length of ICU Stay by Insurance",
-       x = "Insurance",
-       y = "Length of Stay (days)")
-```
+The distribution of stay lengths for each racial group is spread out, with most data points concentrated at the lower end of the scale, indicating shorter ICU stays with a mean of 2.65 to 4.46 days. AMERICAN INDIAN/ALASKA NATIVE have a longest length of stay and HISPANIC/LATINO - MEXICAN have the least. However, there are outliers in almost every racial category that show much longer ICU stays.
+
+**Marita statu**
+
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = marital_status, y = los)) +
   geom_boxplot(width = 0.7) +
@@ -627,21 +641,53 @@ ggplot(mimic_icu_cohort, aes(x = marital_status, y = los)) +
        x = "Marita status",
        y = "Length of Stay (days)")
 ```
+```{r}
+marital_summary <- demographic_func(mimic_icu_cohort, "marital_status")
+
+marital_summary %>% 
+  group_by(marital_status) %>% 
+  summarise(
+    count = n(), 
+    mean = mean(mean_los,na.rm = TRUE),
+    min = min(mean_los,na.rm = TRUE), 
+    max = max(mean_los,na.rm =TRUE))
+```
+Each category shows a variety of lengths of stay, with numerous outliers indicating patients who had exceptionally long ICU stays.
+
+Median Stay: The median length of stay across different marital statuses appears to be similar, as indicated by the line within each box.
+
+Outliers: All categories show outliers; however, it's noteworthy that the 'NA' category seems to have fewer outliers, which might be due to a smaller sample size or less variability in this group.
+
+Interquartile Range: The IQRs appear to be fairly consistent across the categories, suggesting a similar distribution of stay lengths among the different marital statuses.
+
+
+**Gender**
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = gender, y = los)) +
-  geom_col(width = 0.7) +
+  geom_boxplot() +
   labs(title = "Length of ICU Stay by Gender",
        x = "Gender",
        y = "Length of Stay (days)")
 ```
+
+The plot shows that most male and female are similar in terms of length of stay,  with most data points concentrated at the lower end of the scale, indicating shorter ICU stays. However, considering the outliers, male tend to have more ones in long ICU stays than female.
+
+
+**Age at intime**
+
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = age_intime, y = los)) +
-  geom_smooth() +
+  geom_point() +
   labs(title = "Length of ICU Stay by Age",
        x = "Age at intime",
        y = "Length of Stay (days)")
 ```
+
+The data points are heavily concentrated at the lower end of the length of stay, indicating that most patients have shorter ICU stays, typically less than 30 days. Patients of a wide range of ages are represented, with a dense clustering of ICU stays for patients in their middle to late adult years.
+
+
+**Last Available Lab Measurements Before ICU Stay**
 
 ```{r}
 mimic_icu_cohort %>%
@@ -650,11 +696,34 @@ mimic_icu_cohort %>%
   ggplot(aes(x = Last_Lab_Value, y = los)) +
     geom_point(alpha = 0.5) + 
     facet_wrap(~ Measurement, scales = "free") + 
-    labs(title = "Length of ICU Stay vs Last Available Lab Measurements Before ICU             Stay",
+    labs(title = "Length of ICU Stay vs Last Available Lab Measurements Before ICU Stay",
          x = "Last Lab Measurement Value",
          y = "Length of Stay (days)") +
   theme_minimal()
 ```
+
+Observations from the plots are as follows:
+
+Bicarbonate: The scatter plot shows a dense clustering of stays around the normal range of bicarbonate levels, with some outliers showing both higher bicarbonate levels and longer stays.
+
+Chloride: This plot also shows a dense concentration of points around the typical chloride value range, with some outliers extending towards higher values and longer stays.
+
+Creatinine: The data points are heavily concentrated at lower creatinine values with most stays being short. There are outliers with higher values, some of which correspond to longer stays.
+
+Glucose: This plot shows a broad distribution of glucose levels, with a heavy concentration of short stays. There are numerous outliers with both high glucose levels and longer lengths of stay.
+
+Hematocrit: A dense clustering is observed at normal hematocrit levels with most stays being short. There are scattered outliers across a range of hematocrit values.
+
+Potassium: Most of the data points are concentrated around the normal potassium levels, with a few outliers having longer lengths of stay.
+
+Sodium: The sodium plot shows a dense central clustering with a few outliers. Most of the stays are short, but there are some longer stays associated with both lower and higher sodium levels.
+
+White Blood Cells (WBC): There's a dense clustering at the lower WBC counts with short stays, and several outliers indicating higher WBC counts with longer stays.
+
+The overall pattern in these scatter plots suggests that for the majority of patients, the last lab measurement values taken before ICU admission are within typical ranges and are associated with shorter lengths of ICU stay.
+The presence of outliers in each plot could indicate cases with more severe underlying conditions or complications that lead to both abnormal lab values and longer ICU stays. 
+
+**First vital Measurements Within ICU Stay**
 
 ```{r}
 mimic_icu_cohort %>%
@@ -669,10 +738,34 @@ mimic_icu_cohort %>%
   theme_minimal()
 ```
 
+Observations from the plots are as follows:
+
+Heart Rate: The data points are densely populated at lower lengths of stay, with a few outliers extending up to 90 days. The heart rate values range widely, from low to high, but the majority of stays are short, regardless of the heart rate.
+
+NIBP Diastolic: Most of the data points are densely populated at lower lengths of stay, with a few outliers. 
+
+NIBP Systolic: Systolic pressure points are heavily clustered at shorter lengths of stay with a broad range of values. There are outliers with long stays and varying systolic readings.
+
+Respiratory Rate: Respiratory rate are heavily clustered at shorter lengths of stay with a broad range of values. There is a small number of outliers with higher respiratory rates associated with longer stays.
+
+Temperature Fahrenheit: The temperature readings are densely clustered at the normal temperature range, with the length of stay predominantly short. There are outliers with extreme temperature readings associated with both short and longer lengths of stay.
+
+Overall, the plots suggest that for most patients in this cohort, the first vital measurements do not show a clear correlation with the length of ICU stay, which is concentrated at the lower end (indicating shorter stays).  
+
+**First ICU Unit**
 ```{r}
+
+
 ggplot(mimic_icu_cohort, aes(x = first_careunit, y = los)) +
-  geom_point() +
+  geom_boxplot() +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
   labs(title = "Length of ICU Stay by First ICU Unit",
        x = "ICU Unit",
        y = "Length of Stay (days)")
+
 ```
+The median length of ICU stay tends to be similar across different units, with the middle 50% of patients typically staying within a range of approximately up to 10 days.
+
+There are outliers in each ICU unit category, with some stays significantly longer than the median, extending up to and beyond 90 days.
+
+The distribution of lengths of stay seems to be similar across most units, but there may be a slightly higher number of outliers in certain units like the Neuro Stepdown and the Trauma SICU, suggesting that patients in these units might occasionally experience much longer stays.
