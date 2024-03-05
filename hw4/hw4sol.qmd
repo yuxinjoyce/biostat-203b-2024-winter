@@ -103,25 +103,52 @@ labevents_tble <- tbl(con_bq, "labevents") |>
             by = "subject_id") |>
   select(subject_id, stay_id, itemid, valuenum, storetime, intime) |> 
   filter(storetime < intime) |>
-  group_by(subject_id, itemid) |>
+  group_by(subject_id, stay_id, itemid) |>
   slice_max(order_by = storetime, n = 1, with_ties = FALSE) |>
   ungroup() |>
   select(-storetime, -intime) |>
   pivot_wider(names_from = itemid, values_from = valuenum) |>
-  #rename_at(vars(as.character(tbl(con_bq, "d_labitems") |> select(label))),
-           # ~ str_to_lower(str_replace_all(tbl(con_bq, "d_labitems") |> select(itemid), ' ', "_"))) |>#
+  rename(
+    creatinine = '50912',
+    potassium = '50971',
+    sodium = '50983',
+    chloride = '50902',
+    bicarbonate = '50882',
+    hematocrit = '51221',
+    wbc = '51301',
+    glucose = '50931'
+  ) |> 
+  arrange(subject_id) |>
   print(width = Inf)
-  
 ```
-
 
 
 ### Q1.6 `chartevents` data
 
 Connect to `chartevents` table and retrieve a subset that only contain subjects who appear in `icustays_tble` and the chart events listed in HW3. Only keep the first chart events during ICU stay and pivot chart events to become variables/columns. Write all steps in _one_ chain of pipes.
+
 ```{r}
-# # TODO
-# chartevents_tble <- 
+chartevents_tble <- tbl(con_bq, "chartevents") |>
+  semi_join((icustays_tble) |> select(subject_id), by = "subject_id") |>
+  filter(itemid %in% c(220045, 220179, 220180, 223761, 220210)) |>
+  left_join((icustays_tble)|> select(subject_id, intime, outtime,  stay_id),
+            by = c("subject_id", "stay_id")) |>
+  select(subject_id, stay_id, itemid, valuenum, charttime, intime, outtime) |> 
+  filter(charttime >= intime & charttime <= outtime) |>
+  group_by(subject_id, stay_id, itemid) |>
+  slice_min(order_by = charttime, n = 1, with_ties = FALSE) |>
+  ungroup() |>
+  select(-charttime, -intime, -outtime) |>
+  pivot_wider(names_from = itemid, values_from = valuenum) |>
+  rename(
+    Heart_Rate = '220045',
+    Non_Invasive_Blood_Pressure_systolic = '220179',
+    Non_Invasive_Blood_Pressure_diastolic = '220180',
+    Respiratory_Rate = '220210',
+    Temperature_Fahrenheit = '223761'
+  ) |> 
+  arrange(subject_id, stay_id) |>
+  print(width = Inf)
 ```
 
 ### Q1.7 Put things together
