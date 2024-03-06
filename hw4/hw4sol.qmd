@@ -32,6 +32,8 @@ library(DBI)
 library(gt)
 library(gtsummary)
 library(tidyverse)
+library(stringr)
+library(shiny)
 ```
 
 ## Q1. Compile the ICU cohort in HW3 from the Google BigQuery database 
@@ -156,8 +158,16 @@ chartevents_tble <- tbl(con_bq, "chartevents") |>
 This step is similar to Q7 of HW3. Using _one_ chain of pipes `|>` to perform following data wrangling steps: (i) start with the `icustays_tble`, (ii) merge in admissions and patients tables, (iii) keep adults only (age at ICU intime >= 18), (iv) merge in the labevents and chartevents tables, (v) `collect` the tibble.
 
 ```{r}
-# # TODO
-# mimic_icu_cohort <- 
+mimic_icu_cohort <- icustays_tble |>
+  left_join(tbl(con_bq, "patients"), by = "subject_id") |>
+  mutate(age_intime = year(intime)-anchor_year + anchor_age) |>
+  filter(age_intime >= 18) |>
+  left_join(tbl(con_bq, "admissions"), by = c("subject_id","hadm_id")) |>
+  left_join(labevents_tble, by = c("subject_id","stay_id")) |>
+  left_join(chartevents_tble, by = c("subject_id","stay_id")) |>
+  arrange(subject_id, hadm_id) |>
+  collect() |>
+  print(width = Inf)
 ```
 
 ### Q1.8 Preprocessing
@@ -167,6 +177,35 @@ Perform the following preprocessing steps. (i) Lump infrequent levels into "Othe
 Hint: Below is a numerical summary of my tibble after preprocessing:
 
 <iframe width=95% height="500" src="./mimic_icu_cohort_gtsummary.html"></iframe>
+
+#### Answer
+```{r}
+mimic_icu_cohort <- mimic_icu_cohort |> 
+  mutate(
+    race = case_when(
+      str_detect(race, "ASIAN") ~ "ASIAN",
+      str_detect(race, "BLACK|AFRICAN") ~ "BLACK",
+      str_detect(race, "HISPANIC|LATINO") ~ "HISPANIC",
+      str_detect(race, "WHITE") ~ "WHITE",
+      TRUE ~ "Other" 
+    ),
+    race = as.factor(race), 
+    across(all_of(c("first_careunit", "last_careunit", "admission_type", "admission_location", "discharge_location")), 
+           ~fct_lump(.x, 4, other_level = "Other")),
+    los_long = los >= 2
+  ) |>
+  print(width = Inf)
+
+```
+
+
+
+```{r}
+mimic_icu_cohort |> 
+select(c(4,5,8,9,13,14,18,20:25,28:42)) |>
+  tbl_summary(by = los_long)
+```
+
 
 ### Q1.9 Save the final tibble
 
@@ -192,4 +231,8 @@ Although it is not a good practice to add big data files to git, for grading pur
 ## Q2. Shiny app
 
 Develop a Shiny app for exploring the ICU cohort data created in Q1. The app should reside in the `mimiciv_shiny` folder. The app should contain at least two tabs. One tab provides easy access to the graphical and numerical summaries of variables (demographics, lab measurements, vitals) in the ICU cohort. The other allows user to choose a specific patient in the cohort and display the patient's ADT and ICU stay information as we did in Q1 of HW3.
+
+
+
+
 
