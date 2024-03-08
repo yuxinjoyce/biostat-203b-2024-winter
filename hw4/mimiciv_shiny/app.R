@@ -2,7 +2,6 @@ library(bigrquery)
 library(dbplyr)
 library(DBI)
 library(gt)
-library(gtsummary)
 library(tidyverse)
 library(stringr)
 library(shiny)
@@ -57,7 +56,7 @@ ui <- fluidPage(
                sidebarPanel(
                  helpText("Select a patient"),
                  selectizeInput("PatientID", "Patient ID", choices = NULL, options = list(maxItems = 1)),
-                 selectInput("type", "which kind of information", choices = c("ADT", "ICU stay"), selected = "ADT"),
+                 selectInput("type", "Which kind of information", choices = c("ADT", "ICU stay"), selected = "ADT"),
                  actionButton("submit", "Submit")
                ),
                mainPanel(
@@ -110,8 +109,7 @@ server <- function(input, output, session) {
   })
   
   
-  output$plot2 <- renderPlot({
-    req(input$submit)
+  plotData  <- eventReactive(input$submit, {
     req(input$PatientID)
     if (input$type == "ADT") { 
     sid <- as.integer(input$PatientID)
@@ -175,23 +173,24 @@ server <- function(input, output, session) {
                     shape = long_title)) +
       scale_shape_manual(values = c(1:10),
                          labels = unique(sid_pcd$long_title)) +
-      guides(shape = guide_legend(ncol = 2)) +
+      guides(shape = guide_legend(ncol = 2))+
       labs(
         x = "Calendar Time",
         y = "",
         shape = "Procedure", 
         color = "Care Unit",
-        title = paste(
-          "Patient", sid, ",",
-          sid_pat$gender, ",",
-          sid_pat$anchor_age, "years old,",
-          tolower(sid_ad$race), "\n",
-          paste(top_sid_ddgn$long_title[1:3], collapse = "\n")
-        )
-      ) +
+        title = str_c(
+          "Patient ", sid, ", ",
+          sid_pat$gender, ", ",
+          sid_pat$anchor_age + year(sid_ad$admittime[1]) - sid_pat$anchor_year, " years old, ",
+          tolower(sid_ad$race[1])
+        ),
+        subtitle = str_c(str_to_lower(top_sid_ddgn$long_title[1:3]), collapse = "\n")
+      )+
       scale_y_discrete(
         limits = c("Procedure", "Lab", "ADT"),
       ) +
+      theme_light() +
       theme(
         legend.position = "bottom",
         legend.box = "vertical"
@@ -222,6 +221,9 @@ server <- function(input, output, session) {
         axis.text.x = element_text(angle = 20, hjust = 1)
       ) }
 } )
+  output$plot2 <- renderPlot({
+    plotData()
+})
 }
 
 # Create Shiny app
