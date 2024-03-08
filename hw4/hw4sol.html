@@ -3103,8 +3103,8 @@ loaded via a namespace (and not attached):
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>memuse<span class="sc">::</span><span class="fu">Sys.meminfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Totalram:  16.000 GiB 
-Freeram:   89.859 MiB </code></pre>
+<pre><code>Totalram:   16.000 GiB 
+Freeram:   121.359 MiB </code></pre>
 </div>
 </div>
 <p>Load database libraries and the tidyverse frontend:</p>
@@ -3349,30 +3349,30 @@ Freeram:   89.859 MiB </code></pre>
 <pre><code># Source:     SQL [?? x 10]
 # Database:   BigQueryConnection
 # Ordered by: subject_id
-   subject_id  stay_id sodium creatinine bicarbonate   wbc potassium glucose
-        &lt;int&gt;    &lt;int&gt;  &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
- 1   10000032 39553978    126        0.7          25   6.9       6.7     102
- 2   10000980 39765666    144        2.3          21   5.3       3.9      89
- 3   10001217 34592300    142        0.5          30   5.4       4.1      87
- 4   10001217 37067082    142        0.6          22  15.7       4.2     112
- 5   10001725 31205490    139       NA            NA  NA         4.1      NA
- 6   10001884 37510196    130        1.1          30  12.2       4.5     141
- 7   10002013 39060235    137        0.9          24   7.2       3.5     288
- 8   10002155 31090461    135        2.8          23  17.9       4.9     117
- 9   10002155 32358465    120        1.4          26   9.8       5.7     133
-10   10002155 33685454    139        1.1          24   7.9       4.6     138
+   subject_id  stay_id creatinine sodium glucose potassium   wbc bicarbonate
+        &lt;int&gt;    &lt;int&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;
+ 1   10000032 39553978        0.7    126     102       6.7   6.9          25
+ 2   10000980 39765666        2.3    144      89       3.9   5.3          21
+ 3   10001217 37067082        0.6    142     112       4.2  15.7          22
+ 4   10001217 34592300        0.5    142      87       4.1   5.4          30
+ 5   10001725 31205490       NA      139      NA       4.1  NA            NA
+ 6   10001884 37510196        1.1    130     141       4.5  12.2          30
+ 7   10002013 39060235        0.9    137     288       3.5   7.2          24
+ 8   10002155 33685454        1.1    139     138       4.6   7.9          24
+ 9   10002155 31090461        2.8    135     117       4.9  17.9          23
+10   10002155 32358465        1.4    120     133       5.7   9.8          26
    chloride hematocrit
       &lt;dbl&gt;      &lt;dbl&gt;
  1       95       41.1
  2      109       27.3
- 3      104       37.4
- 4      108       38.1
+ 3      108       38.1
+ 4      104       37.4
  5       98       NA  
  6       88       39.7
  7      102       34.9
- 8       98       25.5
- 9       85       22.4
-10      105       39.7
+ 8      105       39.7
+ 9       98       25.5
+10       85       22.4
 # ℹ more rows</code></pre>
 </div>
 </div>
@@ -3406,30 +3406,30 @@ Freeram:   89.859 MiB </code></pre>
 <pre><code># Source:     SQL [?? x 7]
 # Database:   BigQueryConnection
 # Ordered by: subject_id, stay_id
-   subject_id  stay_id Temperature_Fahrenheit Heart_Rate
-        &lt;int&gt;    &lt;int&gt;                  &lt;dbl&gt;      &lt;dbl&gt;
- 1   10000032 39553978                   98.7         91
- 2   10000980 39765666                   98           77
- 3   10001217 34592300                   97.6         96
- 4   10001217 37067082                   98.5         86
- 5   10001725 31205490                   97.7         55
- 6   10001884 37510196                   98.1         38
- 7   10002013 39060235                   97.2         80
- 8   10002155 31090461                   96.9         94
- 9   10002155 32358465                   97.7         98
-10   10002155 33685454                   95.9         68
-   Non_Invasive_Blood_Pressure_diastolic Non_Invasive_Blood_Pressure_systolic
-                                   &lt;dbl&gt;                                &lt;dbl&gt;
- 1                                    48                                   84
- 2                                    77                                  150
- 3                                    95                                  167
- 4                                    90                                  151
- 5                                    56                                   73
- 6                                    12                                  180
- 7                                    70                                  104
- 8                                    51                                  118
- 9                                    65                                  109
-10                                    61                                  126
+   subject_id  stay_id Heart_Rate Temperature_Fahrenheit
+        &lt;int&gt;    &lt;int&gt;      &lt;dbl&gt;                  &lt;dbl&gt;
+ 1   10000032 39553978         91                   98.7
+ 2   10000980 39765666         77                   98  
+ 3   10001217 34592300         96                   97.6
+ 4   10001217 37067082         86                   98.5
+ 5   10001725 31205490         55                   97.7
+ 6   10001884 37510196         38                   98.1
+ 7   10002013 39060235         80                   97.2
+ 8   10002155 31090461         94                   96.9
+ 9   10002155 32358465         98                   97.7
+10   10002155 33685454         68                   95.9
+   Non_Invasive_Blood_Pressure_systolic Non_Invasive_Blood_Pressure_diastolic
+                                  &lt;dbl&gt;                                 &lt;dbl&gt;
+ 1                                   84                                    48
+ 2                                  150                                    77
+ 3                                  167                                    95
+ 4                                  151                                    90
+ 5                                   73                                    56
+ 6                                  180                                    12
+ 7                                  104                                    70
+ 8                                  118                                    51
+ 9                                  109                                    65
+10                                  126                                    61
    Respiratory_Rate
               &lt;dbl&gt;
  1               24
@@ -3552,42 +3552,42 @@ ORDER BY is ignored in subqueries without LIMIT
  8 MARRIED        WHITE                  2131-03-09 19:14:00 2131-03-09 21:33:00
  9 MARRIED        WHITE                  2129-08-04 11:00:00 2129-08-04 12:35:00
 10 MARRIED        WHITE                  2130-09-23 19:59:00 2130-09-24 00:50:00
-   hospital_expire_flag sodium creatinine bicarbonate   wbc potassium glucose
-                  &lt;int&gt;  &lt;dbl&gt;      &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
- 1                    0    126        0.7          25   6.9       6.7     102
- 2                    0    144        2.3          21   5.3       3.9      89
- 3                    0    142        0.6          22  15.7       4.2     112
- 4                    0    142        0.5          30   5.4       4.1      87
- 5                    0    139       NA            NA  NA         4.1      NA
- 6                    1    130        1.1          30  12.2       4.5     141
- 7                    0    137        0.9          24   7.2       3.5     288
- 8                    1    120        1.4          26   9.8       5.7     133
- 9                    0    139        1.1          24   7.9       4.6     138
-10                    0    135        2.8          23  17.9       4.9     117
-   chloride hematocrit Temperature_Fahrenheit Heart_Rate
-      &lt;dbl&gt;      &lt;dbl&gt;                  &lt;dbl&gt;      &lt;dbl&gt;
- 1       95       41.1                   98.7         91
- 2      109       27.3                   98           77
- 3      108       38.1                   98.5         86
- 4      104       37.4                   97.6         96
- 5       98       NA                     97.7         55
- 6       88       39.7                   98.1         38
- 7      102       34.9                   97.2         80
- 8       85       22.4                   97.7         98
- 9      105       39.7                   95.9         68
-10       98       25.5                   96.9         94
-   Non_Invasive_Blood_Pressure_diastolic Non_Invasive_Blood_Pressure_systolic
-                                   &lt;dbl&gt;                                &lt;dbl&gt;
- 1                                    48                                   84
- 2                                    77                                  150
- 3                                    90                                  151
- 4                                    95                                  167
- 5                                    56                                   73
- 6                                    12                                  180
- 7                                    70                                  104
- 8                                    65                                  109
- 9                                    61                                  126
-10                                    51                                  118
+   hospital_expire_flag creatinine sodium glucose potassium   wbc bicarbonate
+                  &lt;int&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;
+ 1                    0        0.7    126     102       6.7   6.9          25
+ 2                    0        2.3    144      89       3.9   5.3          21
+ 3                    0        0.6    142     112       4.2  15.7          22
+ 4                    0        0.5    142      87       4.1   5.4          30
+ 5                    0       NA      139      NA       4.1  NA            NA
+ 6                    1        1.1    130     141       4.5  12.2          30
+ 7                    0        0.9    137     288       3.5   7.2          24
+ 8                    1        1.4    120     133       5.7   9.8          26
+ 9                    0        1.1    139     138       4.6   7.9          24
+10                    0        2.8    135     117       4.9  17.9          23
+   chloride hematocrit Heart_Rate Temperature_Fahrenheit
+      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;                  &lt;dbl&gt;
+ 1       95       41.1         91                   98.7
+ 2      109       27.3         77                   98  
+ 3      108       38.1         86                   98.5
+ 4      104       37.4         96                   97.6
+ 5       98       NA           55                   97.7
+ 6       88       39.7         38                   98.1
+ 7      102       34.9         80                   97.2
+ 8       85       22.4         98                   97.7
+ 9      105       39.7         68                   95.9
+10       98       25.5         94                   96.9
+   Non_Invasive_Blood_Pressure_systolic Non_Invasive_Blood_Pressure_diastolic
+                                  &lt;dbl&gt;                                 &lt;dbl&gt;
+ 1                                   84                                    48
+ 2                                  150                                    77
+ 3                                  151                                    90
+ 4                                  167                                    95
+ 5                                   73                                    56
+ 6                                  180                                    12
+ 7                                  104                                    70
+ 8                                  109                                    65
+ 9                                  126                                    61
+10                                  118                                    51
    Respiratory_Rate
               &lt;dbl&gt;
  1               24
@@ -3702,54 +3702,54 @@ ORDER BY is ignored in subqueries without LIMIT
  8 EMERGENCY ROOM     DIED               Other     ENGLISH  MARRIED        WHITE
  9 Other              Other              Other     ENGLISH  MARRIED        WHITE
 10 EMERGENCY ROOM     HOME HEALTH CARE   Other     ENGLISH  MARRIED        WHITE
-   edregtime           edouttime           hospital_expire_flag sodium
-   &lt;dttm&gt;              &lt;dttm&gt;                             &lt;int&gt;  &lt;dbl&gt;
- 1 2180-07-23 05:54:00 2180-07-23 14:00:00                    0    126
- 2 2189-06-27 06:25:00 2189-06-27 08:42:00                    0    144
- 3 2157-11-18 17:38:00 2157-11-19 01:24:00                    0    142
- 4 NA                  NA                                     0    142
- 5 NA                  NA                                     0    139
- 6 2131-01-07 13:36:00 2131-01-07 22:13:00                    1    130
- 7 NA                  NA                                     0    137
- 8 2131-03-09 19:14:00 2131-03-09 21:33:00                    1    120
- 9 2129-08-04 11:00:00 2129-08-04 12:35:00                    0    139
-10 2130-09-23 19:59:00 2130-09-24 00:50:00                    0    135
-   creatinine bicarbonate   wbc potassium glucose chloride hematocrit
-        &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;
- 1        0.7          25   6.9       6.7     102       95       41.1
- 2        2.3          21   5.3       3.9      89      109       27.3
- 3        0.6          22  15.7       4.2     112      108       38.1
- 4        0.5          30   5.4       4.1      87      104       37.4
- 5       NA            NA  NA         4.1      NA       98       NA  
- 6        1.1          30  12.2       4.5     141       88       39.7
- 7        0.9          24   7.2       3.5     288      102       34.9
- 8        1.4          26   9.8       5.7     133       85       22.4
- 9        1.1          24   7.9       4.6     138      105       39.7
-10        2.8          23  17.9       4.9     117       98       25.5
-   Temperature_Fahrenheit Heart_Rate Non_Invasive_Blood_Pressure_diastolic
-                    &lt;dbl&gt;      &lt;dbl&gt;                                 &lt;dbl&gt;
- 1                   98.7         91                                    48
- 2                   98           77                                    77
- 3                   98.5         86                                    90
- 4                   97.6         96                                    95
- 5                   97.7         55                                    56
- 6                   98.1         38                                    12
- 7                   97.2         80                                    70
- 8                   97.7         98                                    65
- 9                   95.9         68                                    61
-10                   96.9         94                                    51
-   Non_Invasive_Blood_Pressure_systolic Respiratory_Rate los_long
-                                  &lt;dbl&gt;            &lt;dbl&gt; &lt;lgl&gt;   
- 1                                   84               24 FALSE   
- 2                                  150               23 FALSE   
- 3                                  151               18 FALSE   
- 4                                  167               11 FALSE   
- 5                                   73               19 FALSE   
- 6                                  180               10 TRUE    
- 7                                  104               14 FALSE   
- 8                                  109               23 FALSE   
- 9                                  126               18 TRUE    
-10                                  118               18 TRUE    
+   edregtime           edouttime           hospital_expire_flag creatinine
+   &lt;dttm&gt;              &lt;dttm&gt;                             &lt;int&gt;      &lt;dbl&gt;
+ 1 2180-07-23 05:54:00 2180-07-23 14:00:00                    0        0.7
+ 2 2189-06-27 06:25:00 2189-06-27 08:42:00                    0        2.3
+ 3 2157-11-18 17:38:00 2157-11-19 01:24:00                    0        0.6
+ 4 NA                  NA                                     0        0.5
+ 5 NA                  NA                                     0       NA  
+ 6 2131-01-07 13:36:00 2131-01-07 22:13:00                    1        1.1
+ 7 NA                  NA                                     0        0.9
+ 8 2131-03-09 19:14:00 2131-03-09 21:33:00                    1        1.4
+ 9 2129-08-04 11:00:00 2129-08-04 12:35:00                    0        1.1
+10 2130-09-23 19:59:00 2130-09-24 00:50:00                    0        2.8
+   sodium glucose potassium   wbc bicarbonate chloride hematocrit Heart_Rate
+    &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+ 1    126     102       6.7   6.9          25       95       41.1         91
+ 2    144      89       3.9   5.3          21      109       27.3         77
+ 3    142     112       4.2  15.7          22      108       38.1         86
+ 4    142      87       4.1   5.4          30      104       37.4         96
+ 5    139      NA       4.1  NA            NA       98       NA           55
+ 6    130     141       4.5  12.2          30       88       39.7         38
+ 7    137     288       3.5   7.2          24      102       34.9         80
+ 8    120     133       5.7   9.8          26       85       22.4         98
+ 9    139     138       4.6   7.9          24      105       39.7         68
+10    135     117       4.9  17.9          23       98       25.5         94
+   Temperature_Fahrenheit Non_Invasive_Blood_Pressure_systolic
+                    &lt;dbl&gt;                                &lt;dbl&gt;
+ 1                   98.7                                   84
+ 2                   98                                    150
+ 3                   98.5                                  151
+ 4                   97.6                                  167
+ 5                   97.7                                   73
+ 6                   98.1                                  180
+ 7                   97.2                                  104
+ 8                   97.7                                  109
+ 9                   95.9                                  126
+10                   96.9                                  118
+   Non_Invasive_Blood_Pressure_diastolic Respiratory_Rate los_long
+                                   &lt;dbl&gt;            &lt;dbl&gt; &lt;lgl&gt;   
+ 1                                    48               24 FALSE   
+ 2                                    77               23 FALSE   
+ 3                                    90               18 FALSE   
+ 4                                    95               11 FALSE   
+ 5                                    56               19 FALSE   
+ 6                                    12               10 TRUE    
+ 7                                    70               14 FALSE   
+ 8                                    65               23 FALSE   
+ 9                                    61               18 TRUE    
+10                                    51               18 TRUE    
 # ℹ 73,171 more rows</code></pre>
 </div>
 </div>
@@ -3759,20 +3759,20 @@ ORDER BY is ignored in subqueries without LIMIT
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_summary</span>(<span class="at">by =</span> los_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="mxdemsycgc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#mxdemsycgc table {
+<div id="rhwxrvqirx" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rhwxrvqirx table {
 font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#mxdemsycgc thead, #mxdemsycgc tbody, #mxdemsycgc tfoot, #mxdemsycgc tr, #mxdemsycgc td, #mxdemsycgc th {
+#rhwxrvqirx thead, #rhwxrvqirx tbody, #rhwxrvqirx tfoot, #rhwxrvqirx tr, #rhwxrvqirx td, #rhwxrvqirx th {
 border-style: none;
 }
-#mxdemsycgc p {
+#rhwxrvqirx p {
 margin: 0;
 padding: 0;
 }
-#mxdemsycgc .gt_table {
+#rhwxrvqirx .gt_table {
 display: table;
 border-collapse: collapse;
 line-height: normal;
@@ -3797,11 +3797,11 @@ border-left-style: none;
 border-left-width: 2px;
 border-left-color: #D3D3D3;
 }
-#mxdemsycgc .gt_caption {
+#rhwxrvqirx .gt_caption {
 padding-top: 4px;
 padding-bottom: 4px;
 }
-#mxdemsycgc .gt_title {
+#rhwxrvqirx .gt_title {
 color: #333333;
 font-size: 125%;
 font-weight: initial;
@@ -3812,7 +3812,7 @@ padding-right: 5px;
 border-bottom-color: #FFFFFF;
 border-bottom-width: 0;
 }
-#mxdemsycgc .gt_subtitle {
+#rhwxrvqirx .gt_subtitle {
 color: #333333;
 font-size: 85%;
 font-weight: initial;
@@ -3823,7 +3823,7 @@ padding-right: 5px;
 border-top-color: #FFFFFF;
 border-top-width: 0;
 }
-#mxdemsycgc .gt_heading {
+#rhwxrvqirx .gt_heading {
 background-color: #FFFFFF;
 text-align: center;
 border-bottom-color: #FFFFFF;
@@ -3834,12 +3834,12 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#mxdemsycgc .gt_bottom_border {
+#rhwxrvqirx .gt_bottom_border {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#mxdemsycgc .gt_col_headings {
+#rhwxrvqirx .gt_col_headings {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -3853,7 +3853,7 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#mxdemsycgc .gt_col_heading {
+#rhwxrvqirx .gt_col_heading {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -3872,7 +3872,7 @@ padding-left: 5px;
 padding-right: 5px;
 overflow-x: hidden;
 }
-#mxdemsycgc .gt_column_spanner_outer {
+#rhwxrvqirx .gt_column_spanner_outer {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -3883,13 +3883,13 @@ padding-bottom: 0;
 padding-left: 4px;
 padding-right: 4px;
 }
-#mxdemsycgc .gt_column_spanner_outer:first-child {
+#rhwxrvqirx .gt_column_spanner_outer:first-child {
 padding-left: 0;
 }
-#mxdemsycgc .gt_column_spanner_outer:last-child {
+#rhwxrvqirx .gt_column_spanner_outer:last-child {
 padding-right: 0;
 }
-#mxdemsycgc .gt_column_spanner {
+#rhwxrvqirx .gt_column_spanner {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
@@ -3900,10 +3900,10 @@ overflow-x: hidden;
 display: inline-block;
 width: 100%;
 }
-#mxdemsycgc .gt_spanner_row {
+#rhwxrvqirx .gt_spanner_row {
 border-bottom-style: hidden;
 }
-#mxdemsycgc .gt_group_heading {
+#rhwxrvqirx .gt_group_heading {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -3928,7 +3928,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 text-align: left;
 }
-#mxdemsycgc .gt_empty_group_heading {
+#rhwxrvqirx .gt_empty_group_heading {
 padding: 0.5px;
 color: #333333;
 background-color: #FFFFFF;
@@ -3942,13 +3942,13 @@ border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 vertical-align: middle;
 }
-#mxdemsycgc .gt_from_md > :first-child {
+#rhwxrvqirx .gt_from_md > :first-child {
 margin-top: 0;
 }
-#mxdemsycgc .gt_from_md > :last-child {
+#rhwxrvqirx .gt_from_md > :last-child {
 margin-bottom: 0;
 }
-#mxdemsycgc .gt_row {
+#rhwxrvqirx .gt_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -3966,7 +3966,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 overflow-x: hidden;
 }
-#mxdemsycgc .gt_stub {
+#rhwxrvqirx .gt_stub {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -3978,7 +3978,7 @@ border-right-color: #D3D3D3;
 padding-left: 5px;
 padding-right: 5px;
 }
-#mxdemsycgc .gt_stub_row_group {
+#rhwxrvqirx .gt_stub_row_group {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -3991,13 +3991,13 @@ padding-left: 5px;
 padding-right: 5px;
 vertical-align: top;
 }
-#mxdemsycgc .gt_row_group_first td {
+#rhwxrvqirx .gt_row_group_first td {
 border-top-width: 2px;
 }
-#mxdemsycgc .gt_row_group_first th {
+#rhwxrvqirx .gt_row_group_first th {
 border-top-width: 2px;
 }
-#mxdemsycgc .gt_summary_row {
+#rhwxrvqirx .gt_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -4006,14 +4006,14 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#mxdemsycgc .gt_first_summary_row {
+#rhwxrvqirx .gt_first_summary_row {
 border-top-style: solid;
 border-top-color: #D3D3D3;
 }
-#mxdemsycgc .gt_first_summary_row.thick {
+#rhwxrvqirx .gt_first_summary_row.thick {
 border-top-width: 2px;
 }
-#mxdemsycgc .gt_last_summary_row {
+#rhwxrvqirx .gt_last_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -4022,7 +4022,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#mxdemsycgc .gt_grand_summary_row {
+#rhwxrvqirx .gt_grand_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -4031,7 +4031,7 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#mxdemsycgc .gt_first_grand_summary_row {
+#rhwxrvqirx .gt_first_grand_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -4040,7 +4040,7 @@ border-top-style: double;
 border-top-width: 6px;
 border-top-color: #D3D3D3;
 }
-#mxdemsycgc .gt_last_grand_summary_row_top {
+#rhwxrvqirx .gt_last_grand_summary_row_top {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -4049,10 +4049,10 @@ border-bottom-style: double;
 border-bottom-width: 6px;
 border-bottom-color: #D3D3D3;
 }
-#mxdemsycgc .gt_striped {
+#rhwxrvqirx .gt_striped {
 background-color: rgba(128, 128, 128, 0.05);
 }
-#mxdemsycgc .gt_table_body {
+#rhwxrvqirx .gt_table_body {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -4060,7 +4060,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#mxdemsycgc .gt_footnotes {
+#rhwxrvqirx .gt_footnotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -4073,7 +4073,7 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#mxdemsycgc .gt_footnote {
+#rhwxrvqirx .gt_footnote {
 margin: 0px;
 font-size: 90%;
 padding-top: 4px;
@@ -4081,7 +4081,7 @@ padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#mxdemsycgc .gt_sourcenotes {
+#rhwxrvqirx .gt_sourcenotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -4094,57 +4094,57 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#mxdemsycgc .gt_sourcenote {
+#rhwxrvqirx .gt_sourcenote {
 font-size: 90%;
 padding-top: 4px;
 padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#mxdemsycgc .gt_left {
+#rhwxrvqirx .gt_left {
 text-align: left;
 }
-#mxdemsycgc .gt_center {
+#rhwxrvqirx .gt_center {
 text-align: center;
 }
-#mxdemsycgc .gt_right {
+#rhwxrvqirx .gt_right {
 text-align: right;
 font-variant-numeric: tabular-nums;
 }
-#mxdemsycgc .gt_font_normal {
+#rhwxrvqirx .gt_font_normal {
 font-weight: normal;
 }
-#mxdemsycgc .gt_font_bold {
+#rhwxrvqirx .gt_font_bold {
 font-weight: bold;
 }
-#mxdemsycgc .gt_font_italic {
+#rhwxrvqirx .gt_font_italic {
 font-style: italic;
 }
-#mxdemsycgc .gt_super {
+#rhwxrvqirx .gt_super {
 font-size: 65%;
 }
-#mxdemsycgc .gt_footnote_marks {
+#rhwxrvqirx .gt_footnote_marks {
 font-size: 75%;
 vertical-align: 0.4em;
 position: initial;
 }
-#mxdemsycgc .gt_asterisk {
+#rhwxrvqirx .gt_asterisk {
 font-size: 100%;
 vertical-align: 0;
 }
-#mxdemsycgc .gt_indent_1 {
+#rhwxrvqirx .gt_indent_1 {
 text-indent: 5px;
 }
-#mxdemsycgc .gt_indent_2 {
+#rhwxrvqirx .gt_indent_2 {
 text-indent: 10px;
 }
-#mxdemsycgc .gt_indent_3 {
+#rhwxrvqirx .gt_indent_3 {
 text-indent: 15px;
 }
-#mxdemsycgc .gt_indent_4 {
+#rhwxrvqirx .gt_indent_4 {
 text-indent: 20px;
 }
-#mxdemsycgc .gt_indent_5 {
+#rhwxrvqirx .gt_indent_5 {
 text-indent: 25px;
 }
 </style>
@@ -4331,42 +4331,42 @@ text-indent: 25px;
     <tr><td headers="label" class="gt_row gt_left">hospital_expire_flag</td>
 <td headers="stat_1" class="gt_row gt_center">3,357 (8.8%)</td>
 <td headers="stat_2" class="gt_row gt_center">4,972 (14%)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">sodium</td>
-<td headers="stat_1" class="gt_row gt_center">139.0 (136.0, 141.0)</td>
-<td headers="stat_2" class="gt_row gt_center">138.0 (135.0, 141.0)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
-<td headers="stat_1" class="gt_row gt_center">4,174</td>
-<td headers="stat_2" class="gt_row gt_center">4,698</td></tr>
     <tr><td headers="label" class="gt_row gt_left">creatinine</td>
 <td headers="stat_1" class="gt_row gt_center">1.00 (0.80, 1.40)</td>
 <td headers="stat_2" class="gt_row gt_center">1.00 (0.80, 1.60)</td></tr>
     <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
 <td headers="stat_1" class="gt_row gt_center">2,599</td>
 <td headers="stat_2" class="gt_row gt_center">3,171</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">bicarbonate</td>
-<td headers="stat_1" class="gt_row gt_center">25.0 (22.0, 27.0)</td>
-<td headers="stat_2" class="gt_row gt_center">24.0 (21.0, 27.0)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">sodium</td>
+<td headers="stat_1" class="gt_row gt_center">139.0 (136.0, 141.0)</td>
+<td headers="stat_2" class="gt_row gt_center">138.0 (135.0, 141.0)</td></tr>
     <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
-<td headers="stat_1" class="gt_row gt_center">4,270</td>
-<td headers="stat_2" class="gt_row gt_center">4,780</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">wbc</td>
-<td headers="stat_1" class="gt_row gt_center">9.0 (6.6, 12.6)</td>
-<td headers="stat_2" class="gt_row gt_center">9.7 (7.0, 13.8)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
-<td headers="stat_1" class="gt_row gt_center">2,272</td>
-<td headers="stat_2" class="gt_row gt_center">2,822</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">potassium</td>
-<td headers="stat_1" class="gt_row gt_center">4.20 (3.80, 4.60)</td>
-<td headers="stat_2" class="gt_row gt_center">4.20 (3.80, 4.70)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
-<td headers="stat_1" class="gt_row gt_center">4,189</td>
-<td headers="stat_2" class="gt_row gt_center">4,712</td></tr>
+<td headers="stat_1" class="gt_row gt_center">4,174</td>
+<td headers="stat_2" class="gt_row gt_center">4,698</td></tr>
     <tr><td headers="label" class="gt_row gt_left">glucose</td>
 <td headers="stat_1" class="gt_row gt_center">118 (98, 153)</td>
 <td headers="stat_2" class="gt_row gt_center">122 (100, 159)</td></tr>
     <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
 <td headers="stat_1" class="gt_row gt_center">4,282</td>
 <td headers="stat_2" class="gt_row gt_center">4,817</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">potassium</td>
+<td headers="stat_1" class="gt_row gt_center">4.20 (3.80, 4.60)</td>
+<td headers="stat_2" class="gt_row gt_center">4.20 (3.80, 4.70)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_1" class="gt_row gt_center">4,189</td>
+<td headers="stat_2" class="gt_row gt_center">4,712</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">wbc</td>
+<td headers="stat_1" class="gt_row gt_center">9.0 (6.6, 12.6)</td>
+<td headers="stat_2" class="gt_row gt_center">9.7 (7.0, 13.8)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_1" class="gt_row gt_center">2,272</td>
+<td headers="stat_2" class="gt_row gt_center">2,822</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">bicarbonate</td>
+<td headers="stat_1" class="gt_row gt_center">25.0 (22.0, 27.0)</td>
+<td headers="stat_2" class="gt_row gt_center">24.0 (21.0, 27.0)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_1" class="gt_row gt_center">4,270</td>
+<td headers="stat_2" class="gt_row gt_center">4,780</td></tr>
     <tr><td headers="label" class="gt_row gt_left">chloride</td>
 <td headers="stat_1" class="gt_row gt_center">102 (98, 105)</td>
 <td headers="stat_2" class="gt_row gt_center">102 (98, 105)</td></tr>
@@ -4379,30 +4379,30 @@ text-indent: 25px;
     <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
 <td headers="stat_1" class="gt_row gt_center">2,236</td>
 <td headers="stat_2" class="gt_row gt_center">2,781</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">Temperature_Fahrenheit</td>
-<td headers="stat_1" class="gt_row gt_center">98.10 (97.60, 98.60)</td>
-<td headers="stat_2" class="gt_row gt_center">98.20 (97.60, 98.80)</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
-<td headers="stat_1" class="gt_row gt_center">1,189</td>
-<td headers="stat_2" class="gt_row gt_center">173</td></tr>
     <tr><td headers="label" class="gt_row gt_left">Heart_Rate</td>
 <td headers="stat_1" class="gt_row gt_center">85 (74, 99)</td>
 <td headers="stat_2" class="gt_row gt_center">88 (76, 103)</td></tr>
     <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
 <td headers="stat_1" class="gt_row gt_center">17</td>
 <td headers="stat_2" class="gt_row gt_center">1</td></tr>
-    <tr><td headers="label" class="gt_row gt_left">Non_Invasive_Blood_Pressure_diastolic</td>
-<td headers="stat_1" class="gt_row gt_center">68 (58, 80)</td>
-<td headers="stat_2" class="gt_row gt_center">66 (55, 79)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">Temperature_Fahrenheit</td>
+<td headers="stat_1" class="gt_row gt_center">98.10 (97.60, 98.60)</td>
+<td headers="stat_2" class="gt_row gt_center">98.20 (97.60, 98.80)</td></tr>
     <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
-<td headers="stat_1" class="gt_row gt_center">733</td>
-<td headers="stat_2" class="gt_row gt_center">250</td></tr>
+<td headers="stat_1" class="gt_row gt_center">1,189</td>
+<td headers="stat_2" class="gt_row gt_center">173</td></tr>
     <tr><td headers="label" class="gt_row gt_left">Non_Invasive_Blood_Pressure_systolic</td>
 <td headers="stat_1" class="gt_row gt_center">122 (107, 139)</td>
 <td headers="stat_2" class="gt_row gt_center">120 (104, 138)</td></tr>
     <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
 <td headers="stat_1" class="gt_row gt_center">732</td>
 <td headers="stat_2" class="gt_row gt_center">247</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">Non_Invasive_Blood_Pressure_diastolic</td>
+<td headers="stat_1" class="gt_row gt_center">68 (58, 80)</td>
+<td headers="stat_2" class="gt_row gt_center">66 (55, 79)</td></tr>
+    <tr><td headers="label" class="gt_row gt_left">    Unknown</td>
+<td headers="stat_1" class="gt_row gt_center">733</td>
+<td headers="stat_2" class="gt_row gt_center">250</td></tr>
     <tr><td headers="label" class="gt_row gt_left">Respiratory_Rate</td>
 <td headers="stat_1" class="gt_row gt_center">18.0 (15.0, 22.0)</td>
 <td headers="stat_2" class="gt_row gt_center">19.0 (15.0, 23.0)</td></tr>
