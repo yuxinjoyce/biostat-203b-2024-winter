@@ -7,7 +7,6 @@ library(stringr)
 library(shiny)
 
 satoken <- "../biostat-203b-2024-winter-313290ce47a6.json"
-# BigQuery authentication using service account
 bq_auth(path = satoken)
 
 con_bq <- dbConnect(
@@ -28,18 +27,15 @@ admissions_tbl <- tbl(con_bq, "admissions")
 ditems_tbl <- tbl(con_bq, "d_items")
 chartevents_tbl <- tbl(con_bq, "chartevents")
 
-# Load your dataset
 mimic_icu_cohort <- readRDS("mimic_icu_cohort.rds")
 
-# Define the UI
 ui <- fluidPage(
   tabsetPanel(
-    # First tab for "Patient characteristics"
     tabPanel("Patient characteristics",
              sidebarLayout(
                sidebarPanel(
                  selectInput("variable", "Variable of interest:",
-                             choices = c("Last care unit", "Lab events")),
+                             choices = c("Last care unit", "Lab events", "Race", "Age", "Gender")),
                  checkboxInput(inputId = "removeOutliers",
                                label = "Remove outliers in IQR method for measurements?",
                                value = FALSE)
@@ -50,7 +46,6 @@ ui <- fluidPage(
              )
     ),
     
-    # Second tab for "Patient's ADT and ICU stay information"
     tabPanel("Patient's ADT and ICU stay information",
              sidebarLayout(
                sidebarPanel(
@@ -68,7 +63,6 @@ ui <- fluidPage(
   )
 
 
-# Define server logic
 server <- function(input, output, session) {
   observe({
     req(mimic_icu_cohort)
@@ -78,7 +72,6 @@ server <- function(input, output, session) {
   output$plot1 <- renderPlot({
     req(input$variable)
     if (input$variable == "Last care unit") {
-      # Plot the last care unit with x and y swapped
       mimic_icu_cohort %>%
         ggplot( aes(y = last_careunit)) +
         geom_bar() +
@@ -86,14 +79,12 @@ server <- function(input, output, session) {
              y = "Care unit",
              x = "Count")  
     } else if (input$variable == "Lab events") {
-      # Plot the lab events with x and y swapped
       plot_data <- mimic_icu_cohort %>%
-        select(sodium, potassium, glucose, creatinine, chloride, bicarbonate) %>%
+        select(29:37) %>%
         pivot_longer(cols = everything(), names_to = "lab", values_to = "value") %>%
         na.omit()
       
       if (input$removeOutliers) {
-        # Remove outliers using IQR method
         plot_data <- plot_data %>%
           group_by(lab) %>%
           mutate(outlier = abs(value - median(value)) > 1.5 * IQR(value)) %>%
@@ -105,8 +96,31 @@ server <- function(input, output, session) {
         labs(title = "Lab events",
              x = "Count",
              y = "Value") 
+    } else if (input$variable == "Race") {
+      mimic_icu_cohort %>%
+        ggplot(aes(y = race)) +
+        geom_bar() +
+        labs(title = "Race distribution",
+             y = "Race",
+             x = "Count") 
+    } else if (input$variable == "Age") {
+      mimic_icu_cohort %>%
+        ggplot( aes(y = age_intime)) +
+        geom_histogram(binwidth = 5) +
+        labs(title = "Age distribution",
+             x = "Age",
+             y = "Count") 
+    } else if (input$variable == "Gender") {
+      mimic_icu_cohort %>%
+      ggplot( aes(y = gender)) +
+        geom_bar() +
+        labs(title = "Gender distribution",
+             x = "Gender",
+             y = "Count") 
+      
     }
-  })
+  }
+ )
   
   
   plotData  <- eventReactive(input$submit, {
@@ -226,5 +240,4 @@ server <- function(input, output, session) {
 })
 }
 
-# Create Shiny app
 shinyApp(ui, server)
