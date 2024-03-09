@@ -35,9 +35,11 @@ ui <- fluidPage(
              sidebarLayout(
                sidebarPanel(
                  selectInput("variable", "Variable of interest:",
-                             choices = c("Last care unit", "Lab events", "Race", "Age", "Gender")),
+                             choices = c("Last care unit", "Lab events",
+                                         "Race", "Age", "Gender")),
                  checkboxInput(inputId = "removeOutliers",
-                               label = "Remove outliers in IQR method for measurements?",
+                               label = "Remove outliers in IQR method for
+                               measurements?",
                                value = FALSE)
                ),
                mainPanel(
@@ -50,30 +52,34 @@ ui <- fluidPage(
              sidebarLayout(
                sidebarPanel(
                  helpText("Select a patient"),
-                 selectizeInput("PatientID", "Patient ID", choices = NULL, options = list(maxItems = 1)),
-                 selectInput("type", "Which kind of information", choices = c("ADT", "ICU stay"), selected = "ADT"),
+                 selectizeInput("PatientID", "Patient ID", choices = NULL, 
+                                options = list(maxItems = 1)),
+                 selectInput("type", "Which kind of information", 
+                             choices = c("ADT", "ICU stay"), selected = "ADT"),
                  actionButton("submit", "Submit")
                ),
                mainPanel(
                  plotOutput("plot2")
                )
              )  
-      )
     )
   )
+)
+
 
 
 server <- function(input, output, session) {
   observe({
     req(mimic_icu_cohort)
-    updateSelectizeInput(session, "PatientID", choices = mimic_icu_cohort$subject_id, server = TRUE)
+    updateSelectizeInput(session, "PatientID", 
+                         choices = mimic_icu_cohort$subject_id, server = TRUE)
   })
   
   output$plot1 <- renderPlot({
     req(input$variable)
     if (input$variable == "Last care unit") {
       mimic_icu_cohort %>%
-        ggplot( aes(y = last_careunit)) +
+        ggplot(aes(y = last_careunit)) +
         geom_bar() +
         labs(title = "Last care unit",
              y = "Care unit",
@@ -81,7 +87,8 @@ server <- function(input, output, session) {
     } else if (input$variable == "Lab events") {
       plot_data <- mimic_icu_cohort %>%
         select(29:37) %>%
-        pivot_longer(cols = everything(), names_to = "lab", values_to = "value") %>%
+        pivot_longer(cols = everything(), names_to = "lab", 
+                     values_to = "value") %>%
         na.omit()
       
       if (input$removeOutliers) {
@@ -101,143 +108,147 @@ server <- function(input, output, session) {
         ggplot(aes(y = race)) +
         geom_bar() +
         labs(title = "Race distribution",
-             y = "Race",
-             x = "Count") 
+             y = "Count",
+             x = "Race") 
     } else if (input$variable == "Age") {
       mimic_icu_cohort %>%
-        ggplot( aes(y = age_intime)) +
+        ggplot(aes(y = age_intime)) +
         geom_histogram(binwidth = 5) +
         labs(title = "Age distribution",
-             x = "Age",
-             y = "Count") 
+             x = "Count",
+             y = "Age") 
     } else if (input$variable == "Gender") {
       mimic_icu_cohort %>%
-      ggplot( aes(y = gender)) +
+        ggplot(aes(y = gender)) +
         geom_bar() +
         labs(title = "Gender distribution",
-             x = "Gender",
-             y = "Count") 
+             x = "Count",
+             y = "Gender") 
       
     }
   }
- )
+  )
   
   
   plotData  <- eventReactive(input$submit, {
     req(input$PatientID)
     if (input$type == "ADT") { 
-    sid <- as.integer(input$PatientID)
-    
-    sid_lab <- labevents_tbl %>%
-      filter(subject_id == sid) %>%
-      collect()
-    
-    sid_adt <- transfer_tbl %>%
-      filter(subject_id == sid & eventtype != "discharge") %>%
-      collect() 
-    
-    sid_pat <- patients_tbl %>%
-      filter(subject_id == sid) %>%
-      collect()
-    
-    sid_hpcd <- procedures_tbl %>%
-      filter(subject_id == sid) %>%
-      mutate(chartdate = as.POSIXct(chartdate)) %>%
-      collect()
-    
-    sid_ipcd <- dprocedures_tbl %>%
-      collect()
-    
-    sid_pcd <- left_join(sid_hpcd , sid_ipcd, by = "icd_code") %>%
-      collect() 
-    
-    sid_dgn <- diagnoses_tbl %>%
-      filter(subject_id == sid) %>%
-      collect()
-    
-    sid_ddgn <- ddiagnoses_tbl %>%
-      collect()
-    
-    top_sid_ddgn <- sid_dgn %>%
-      slice_head(n = 3) %>%  
-      ungroup() %>%  
-      inner_join(sid_ddgn, by = "icd_code")
-    
-    sid_ad <- admissions_tbl %>%
-      filter(subject_id == sid) %>%
-      collect()
-    
-    ggplot() +
-      geom_segment(data = sid_adt, aes(
-        x = intime, 
-        xend = outtime,
-        y = "ADT",
-        yend = "ADT",
-        color = careunit,
-        linewidth = str_detect(careunit, "(ICU|CCU)"))) +
-      geom_point(data = sid_lab,
-                 aes(
-                   x = charttime,
-                   y = "Lab"),
-                 shape = 3) +
-      geom_jitter(data = sid_pcd,
-                  aes(
-                    x = chartdate,
-                    y = "Procedure",
-                    shape = long_title)) +
-      scale_shape_manual(values = c(1:10),
-                         labels = unique(sid_pcd$long_title)) +
-      guides(shape = guide_legend(ncol = 2))+
-      labs(
-        x = "Calendar Time",
-        y = "",
-        shape = "Procedure", 
-        color = "Care Unit",
-        title = str_c(
-          "Patient ", sid, ", ",
-          sid_pat$gender, ", ",
-          sid_pat$anchor_age + year(sid_ad$admittime[1]) - sid_pat$anchor_year, " years old, ",
-          tolower(sid_ad$race[1])
-        ),
-        subtitle = str_c(str_to_lower(top_sid_ddgn$long_title[1:3]), collapse = "\n")
-      )+
-      scale_y_discrete(
-        limits = c("Procedure", "Lab", "ADT"),
-      ) +
-      theme_light() +
-      theme(
-        legend.position = "bottom",
-        legend.box = "vertical"
-      )
-  }else if (input$type == "ICU stay") {
-    sid <- as.integer(input$PatientID)
-    
-    sid_ite <- ditems_tbl |>
-      filter(abbreviation %in% c("HR", "NBPd", "NBPs", "RR", "Temperature F")) |>
-      collect()
-    
-    sid_cet <- chartevents_tbl |>
-      filter(subject_id == sid) |>
-      collect() |>
-      inner_join(sid_ite, by = "itemid") |>
-      mutate(value = as.numeric(value)) 
-    
-    ggplot(sid_cet) +
-      geom_line(aes(x = charttime, y =value,group= itemid, 
-                    color = abbreviation), na.rm = T) +
-      geom_point(aes(x = charttime, y =value,group= itemid, 
-                     color = abbreviation)) +
-      facet_grid(abbreviation ~ stay_id, scales = "free") +
-      labs(x = "Calendar Time", title = paste("Patient", sid, "ICU stays - Vitals")) +
-      theme_light() +
-      theme(
-        legend.position = "none",
-        axis.text.x = element_text(angle = 20, hjust = 1)
-      ) }
-} )
+      sid <- as.integer(input$PatientID)
+      
+      sid_lab <- labevents_tbl %>%
+        filter(subject_id == sid) %>%
+        collect()
+      
+      sid_adt <- transfer_tbl %>%
+        filter(subject_id == sid & eventtype != "discharge") %>%
+        collect() 
+      
+      sid_pat <- patients_tbl %>%
+        filter(subject_id == sid) %>%
+        collect()
+      
+      sid_hpcd <- procedures_tbl %>%
+        filter(subject_id == sid) %>%
+        mutate(chartdate = as.POSIXct(chartdate)) %>%
+        collect()
+      
+      sid_ipcd <- dprocedures_tbl %>%
+        collect()
+      
+      sid_pcd <- left_join(sid_hpcd , sid_ipcd, by = "icd_code") %>%
+        collect() 
+      
+      sid_dgn <- diagnoses_tbl %>%
+        filter(subject_id == sid) %>%
+        collect()
+      
+      sid_ddgn <- ddiagnoses_tbl %>%
+        collect()
+      
+      top_sid_ddgn <- sid_dgn %>%
+        slice_head(n = 3) %>%  
+        ungroup() %>%  
+        inner_join(sid_ddgn, by = "icd_code")
+      
+      sid_ad <- admissions_tbl %>%
+        filter(subject_id == sid) %>%
+        collect()
+      
+      ggplot() +
+        geom_segment(data = sid_adt, aes(
+          x = intime, 
+          xend = outtime,
+          y = "ADT",
+          yend = "ADT",
+          color = careunit,
+          linewidth = str_detect(careunit, "(ICU|CCU)"))) +
+        geom_point(data = sid_lab,
+                   aes(
+                     x = charttime,
+                     y = "Lab"),
+                   shape = 3) +
+        geom_jitter(data = sid_pcd,
+                    aes(
+                      x = chartdate,
+                      y = "Procedure",
+                      shape = long_title)) +
+        scale_shape_manual(values = c(1:10),
+                           labels = unique(sid_pcd$long_title)) +
+        guides(shape = guide_legend(ncol = 2))+
+        labs(
+          x = "Calendar Time",
+          y = "",
+          shape = "Procedure", 
+          color = "Care Unit",
+          title = str_c(
+            "Patient ", sid, ", ",
+            sid_pat$gender, ", ",
+            sid_pat$anchor_age + year(sid_ad$admittime[1]) - 
+              sid_pat$anchor_year, " years old, ",
+            tolower(sid_ad$race[1])
+          ),
+          subtitle = str_c(str_to_lower(top_sid_ddgn$long_title[1:3]), 
+                           collapse = "\n")
+        )+
+        scale_y_discrete(
+          limits = c("Procedure", "Lab", "ADT"),
+        ) +
+        theme_light() +
+        theme(
+          legend.position = "bottom",
+          legend.box = "vertical"
+        )
+    }else if (input$type == "ICU stay") {
+      sid <- as.integer(input$PatientID)
+      
+      sid_ite <- ditems_tbl |>
+        filter(abbreviation %in% c("HR", "NBPd", "NBPs", "RR", 
+                                   "Temperature F")) |>
+        collect()
+      
+      sid_cet <- chartevents_tbl |>
+        filter(subject_id == sid) |>
+        collect() |>
+        inner_join(sid_ite, by = "itemid") |>
+        mutate(value = as.numeric(value)) 
+      
+      ggplot(sid_cet) +
+        geom_line(aes(x = charttime, y =value,group= itemid, 
+                      color = abbreviation), na.rm = T) +
+        geom_point(aes(x = charttime, y =value,group= itemid, 
+                       color = abbreviation)) +
+        facet_grid(abbreviation ~ stay_id, scales = "free") +
+        labs(x = "Calendar Time", title = paste("Patient", sid, 
+                                                "ICU stays - Vitals")) +
+        theme_light() +
+        theme(
+          legend.position = "none",
+          axis.text.x = element_text(angle = 20, hjust = 1)
+        ) }
+  } )
   output$plot2 <- renderPlot({
     plotData()
-})
+  })
 }
 
 shinyApp(ui, server)

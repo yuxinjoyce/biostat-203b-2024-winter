@@ -3104,7 +3104,7 @@ loaded via a namespace (and not attached):
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>memuse<span class="sc">::</span><span class="fu">Sys.meminfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Totalram:   16.000 GiB 
-Freeram:   842.766 MiB </code></pre>
+Freeram:   192.344 MiB </code></pre>
 </div>
 </div>
 <p>Load database libraries and the tidyverse frontend:</p>
@@ -3322,29 +3322,32 @@ Freeram:   842.766 MiB </code></pre>
 <p>Connect to the <code>labevents</code> table and retrieve a subset that only contain subjects who appear in <code>icustays_tble</code> and the lab items listed in HW3. Only keep the last lab measurements before the ICU stay and pivot lab items to become variables/columns. Write all steps in <em>one</em> chain of pipes.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>labevents_tble <span class="ot">&lt;-</span> <span class="fu">tbl</span>(con_bq, <span class="st">&quot;labevents&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">semi_join</span>((icustays_tble) <span class="sc">|&gt;</span> <span class="fu">select</span>(subject_id), <span class="at">by =</span> <span class="st">&quot;subject_id&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">50912</span>, <span class="dv">50971</span>, <span class="dv">50983</span>, <span class="dv">50902</span>, <span class="dv">50882</span>, <span class="dv">51221</span>, <span class="dv">51301</span>, <span class="dv">50931</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>((icustays_tble) <span class="sc">|&gt;</span> <span class="fu">select</span>(subject_id, intime, stay_id),</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="st">&quot;subject_id&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, itemid, valuenum, storetime, intime) <span class="sc">|&gt;</span> </span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(storetime <span class="sc">&lt;</span> intime) <span class="sc">|&gt;</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject_id, stay_id, itemid) <span class="sc">|&gt;</span></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> storetime, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>storetime, <span class="sc">-</span>intime) <span class="sc">|&gt;</span></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> itemid, <span class="at">values_from =</span> valuenum) <span class="sc">|&gt;</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">creatinine =</span> <span class="st">&#39;50912&#39;</span>,</span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">potassium =</span> <span class="st">&#39;50971&#39;</span>,</span>
-<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">sodium =</span> <span class="st">&#39;50983&#39;</span>,</span>
-<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">chloride =</span> <span class="st">&#39;50902&#39;</span>,</span>
-<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">bicarbonate =</span> <span class="st">&#39;50882&#39;</span>,</span>
-<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">hematocrit =</span> <span class="st">&#39;51221&#39;</span>,</span>
-<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">wbc =</span> <span class="st">&#39;51301&#39;</span>,</span>
-<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">glucose =</span> <span class="st">&#39;50931&#39;</span></span>
-<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
-<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(subject_id) <span class="sc">|&gt;</span></span>
-<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">semi_join</span>((icustays_tble) <span class="sc">|&gt;</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>              <span class="fu">select</span>(subject_id), <span class="at">by=</span><span class="st">&quot;subject_id&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">50912</span>, <span class="dv">50971</span>, <span class="dv">50983</span>, <span class="dv">50902</span>, </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                       <span class="dv">50882</span>, <span class="dv">51221</span>, <span class="dv">51301</span>, <span class="dv">50931</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>((icustays_tble) <span class="sc">|&gt;</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>            <span class="fu">select</span>(subject_id, intime, stay_id),</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">by=</span><span class="st">&quot;subject_id&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, itemid, valuenum, storetime, intime) <span class="sc">|&gt;</span> </span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(storetime <span class="sc">&lt;</span> intime) <span class="sc">|&gt;</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject_id, stay_id, itemid) <span class="sc">|&gt;</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by=</span>storetime, <span class="at">n=</span><span class="dv">1</span>, <span class="at">with_ties=</span><span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>storetime, <span class="sc">-</span>intime) <span class="sc">|&gt;</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from=</span>itemid, <span class="at">values_from=</span>valuenum) <span class="sc">|&gt;</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">creatinine =</span> <span class="st">&#39;50912&#39;</span>,</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">potassium =</span> <span class="st">&#39;50971&#39;</span>,</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">sodium =</span> <span class="st">&#39;50983&#39;</span>,</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">chloride =</span> <span class="st">&#39;50902&#39;</span>,</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">bicarbonate =</span> <span class="st">&#39;50882&#39;</span>,</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">hematocrit =</span> <span class="st">&#39;51221&#39;</span>,</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">wbc =</span> <span class="st">&#39;51301&#39;</span>,</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">glucose =</span> <span class="st">&#39;50931&#39;</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(subject_id) <span class="sc">|&gt;</span></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width=</span><span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Source:     SQL [?? x 10]
 # Database:   BigQueryConnection
@@ -3382,17 +3385,17 @@ Freeram:   842.766 MiB </code></pre>
 <p>Connect to <code>chartevents</code> table and retrieve a subset that only contain subjects who appear in <code>icustays_tble</code> and the chart events listed in HW3. Only keep the first chart events during ICU stay and pivot chart events to become variables/columns. Write all steps in <em>one</em> chain of pipes.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>chartevents_tble <span class="ot">&lt;-</span> <span class="fu">tbl</span>(con_bq, <span class="st">&quot;chartevents&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">semi_join</span>((icustays_tble) <span class="sc">|&gt;</span> <span class="fu">select</span>(subject_id), <span class="at">by =</span> <span class="st">&quot;subject_id&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">semi_join</span>((icustays_tble) <span class="sc">|&gt;</span> <span class="fu">select</span>(subject_id), <span class="at">by=</span><span class="st">&quot;subject_id&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">220045</span>, <span class="dv">220179</span>, <span class="dv">220180</span>, <span class="dv">223761</span>, <span class="dv">220210</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>((icustays_tble)<span class="sc">|&gt;</span> <span class="fu">select</span>(subject_id, intime, outtime,  stay_id),</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span>, <span class="st">&quot;stay_id&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>((icustays_tble) <span class="sc">|&gt;</span> <span class="fu">select</span>(subject_id, intime, outtime, stay_id),</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span>, <span class="st">&quot;stay_id&quot;</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, itemid, valuenum, charttime, intime, outtime) <span class="sc">|&gt;</span> </span>
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(charttime <span class="sc">&gt;=</span> intime <span class="sc">&amp;</span> charttime <span class="sc">&lt;=</span> outtime) <span class="sc">|&gt;</span></span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject_id, stay_id, itemid) <span class="sc">|&gt;</span></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_min</span>(<span class="at">order_by =</span> charttime, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_min</span>(<span class="at">order_by=</span>charttime, <span class="at">n=</span><span class="dv">1</span>, <span class="at">with_ties=</span><span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
 <span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
 <span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>charttime, <span class="sc">-</span>intime, <span class="sc">-</span>outtime) <span class="sc">|&gt;</span></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> itemid, <span class="at">values_from =</span> valuenum) <span class="sc">|&gt;</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from=</span>itemid, <span class="at">values_from=</span>valuenum) <span class="sc">|&gt;</span></span>
 <span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
 <span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">Heart_Rate =</span> <span class="st">&#39;220045&#39;</span>,</span>
 <span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">Non_Invasive_Blood_Pressure_systolic =</span> <span class="st">&#39;220179&#39;</span>,</span>
@@ -3401,7 +3404,7 @@ Freeram:   842.766 MiB </code></pre>
 <span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">Temperature_Fahrenheit =</span> <span class="st">&#39;223761&#39;</span></span>
 <span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
 <span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(subject_id, stay_id) <span class="sc">|&gt;</span></span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width=</span><span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Source:     SQL [?? x 7]
 # Database:   BigQueryConnection
@@ -3451,15 +3454,15 @@ Freeram:   842.766 MiB </code></pre>
 <p>This step is similar to Q7 of HW3. Using <em>one</em> chain of pipes <code>|&gt;</code> to perform following data wrangling steps: (i) start with the <code>icustays_tble</code>, (ii) merge in admissions and patients tables, (iii) keep adults only (age at ICU intime &gt;= 18), (iv) merge in the labevents and chartevents tables, (v) <code>collect</code> the tibble.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="ot">&lt;-</span> icustays_tble <span class="sc">|&gt;</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">tbl</span>(con_bq, <span class="st">&quot;patients&quot;</span>), <span class="at">by =</span> <span class="st">&quot;subject_id&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age_intime =</span> <span class="fu">year</span>(intime)<span class="sc">-</span>anchor_year <span class="sc">+</span> anchor_age) <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">tbl</span>(con_bq, <span class="st">&quot;patients&quot;</span>), <span class="at">by=</span><span class="st">&quot;subject_id&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age_intime =</span> <span class="fu">year</span>(intime) <span class="sc">-</span> anchor_year <span class="sc">+</span> anchor_age) <span class="sc">|&gt;</span></span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(age_intime <span class="sc">&gt;=</span> <span class="dv">18</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">tbl</span>(con_bq, <span class="st">&quot;admissions&quot;</span>), <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span>,<span class="st">&quot;hadm_id&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(labevents_tble, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span>,<span class="st">&quot;stay_id&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(chartevents_tble, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span>,<span class="st">&quot;stay_id&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">tbl</span>(con_bq, <span class="st">&quot;admissions&quot;</span>), <span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span>, <span class="st">&quot;hadm_id&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(labevents_tble, <span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span>, <span class="st">&quot;stay_id&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(chartevents_tble, <span class="at">by=</span><span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span>, <span class="st">&quot;stay_id&quot;</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(subject_id, hadm_id) <span class="sc">|&gt;</span></span>
 <span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">|&gt;</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width=</span><span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: ORDER BY is ignored in subqueries without LIMIT
 ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
@@ -3626,8 +3629,8 @@ ORDER BY is ignored in subqueries without LIMIT
 <span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">across</span>(<span class="fu">all_of</span>(<span class="fu">c</span>(<span class="st">&quot;first_careunit&quot;</span>, <span class="st">&quot;last_careunit&quot;</span>, <span class="st">&quot;admission_type&quot;</span>, <span class="st">&quot;admission_location&quot;</span>, <span class="st">&quot;discharge_location&quot;</span>)), </span>
 <span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>           <span class="sc">~</span><span class="fu">fct_lump</span>(.x, <span class="dv">4</span>, <span class="at">other_level =</span> <span class="st">&quot;Other&quot;</span>)),</span>
 <span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">los_long =</span> los <span class="sc">&gt;=</span> <span class="dv">2</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width=</span><span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 73,181 × 42
    subject_id  hadm_id  stay_id first_careunit                                  
@@ -3755,24 +3758,24 @@ ORDER BY is ignored in subqueries without LIMIT
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="sc">|&gt;</span> </span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(<span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">13</span>,<span class="dv">14</span>,<span class="dv">18</span>,<span class="dv">20</span><span class="sc">:</span><span class="dv">25</span>,<span class="dv">28</span><span class="sc">:</span><span class="dv">42</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">13</span>, <span class="dv">14</span>, <span class="dv">18</span>, <span class="dv">20</span><span class="sc">:</span><span class="dv">25</span>, <span class="dv">28</span><span class="sc">:</span><span class="dv">42</span>)) <span class="sc">|&gt;</span> </span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_summary</span>(<span class="at">by =</span> los_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="tobbeiigfg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#tobbeiigfg table {
+<div id="slermefhxq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#slermefhxq table {
 font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#tobbeiigfg thead, #tobbeiigfg tbody, #tobbeiigfg tfoot, #tobbeiigfg tr, #tobbeiigfg td, #tobbeiigfg th {
+#slermefhxq thead, #slermefhxq tbody, #slermefhxq tfoot, #slermefhxq tr, #slermefhxq td, #slermefhxq th {
 border-style: none;
 }
-#tobbeiigfg p {
+#slermefhxq p {
 margin: 0;
 padding: 0;
 }
-#tobbeiigfg .gt_table {
+#slermefhxq .gt_table {
 display: table;
 border-collapse: collapse;
 line-height: normal;
@@ -3797,11 +3800,11 @@ border-left-style: none;
 border-left-width: 2px;
 border-left-color: #D3D3D3;
 }
-#tobbeiigfg .gt_caption {
+#slermefhxq .gt_caption {
 padding-top: 4px;
 padding-bottom: 4px;
 }
-#tobbeiigfg .gt_title {
+#slermefhxq .gt_title {
 color: #333333;
 font-size: 125%;
 font-weight: initial;
@@ -3812,7 +3815,7 @@ padding-right: 5px;
 border-bottom-color: #FFFFFF;
 border-bottom-width: 0;
 }
-#tobbeiigfg .gt_subtitle {
+#slermefhxq .gt_subtitle {
 color: #333333;
 font-size: 85%;
 font-weight: initial;
@@ -3823,7 +3826,7 @@ padding-right: 5px;
 border-top-color: #FFFFFF;
 border-top-width: 0;
 }
-#tobbeiigfg .gt_heading {
+#slermefhxq .gt_heading {
 background-color: #FFFFFF;
 text-align: center;
 border-bottom-color: #FFFFFF;
@@ -3834,12 +3837,12 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#tobbeiigfg .gt_bottom_border {
+#slermefhxq .gt_bottom_border {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#tobbeiigfg .gt_col_headings {
+#slermefhxq .gt_col_headings {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -3853,7 +3856,7 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#tobbeiigfg .gt_col_heading {
+#slermefhxq .gt_col_heading {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -3872,7 +3875,7 @@ padding-left: 5px;
 padding-right: 5px;
 overflow-x: hidden;
 }
-#tobbeiigfg .gt_column_spanner_outer {
+#slermefhxq .gt_column_spanner_outer {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -3883,13 +3886,13 @@ padding-bottom: 0;
 padding-left: 4px;
 padding-right: 4px;
 }
-#tobbeiigfg .gt_column_spanner_outer:first-child {
+#slermefhxq .gt_column_spanner_outer:first-child {
 padding-left: 0;
 }
-#tobbeiigfg .gt_column_spanner_outer:last-child {
+#slermefhxq .gt_column_spanner_outer:last-child {
 padding-right: 0;
 }
-#tobbeiigfg .gt_column_spanner {
+#slermefhxq .gt_column_spanner {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
@@ -3900,10 +3903,10 @@ overflow-x: hidden;
 display: inline-block;
 width: 100%;
 }
-#tobbeiigfg .gt_spanner_row {
+#slermefhxq .gt_spanner_row {
 border-bottom-style: hidden;
 }
-#tobbeiigfg .gt_group_heading {
+#slermefhxq .gt_group_heading {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -3928,7 +3931,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 text-align: left;
 }
-#tobbeiigfg .gt_empty_group_heading {
+#slermefhxq .gt_empty_group_heading {
 padding: 0.5px;
 color: #333333;
 background-color: #FFFFFF;
@@ -3942,13 +3945,13 @@ border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 vertical-align: middle;
 }
-#tobbeiigfg .gt_from_md > :first-child {
+#slermefhxq .gt_from_md > :first-child {
 margin-top: 0;
 }
-#tobbeiigfg .gt_from_md > :last-child {
+#slermefhxq .gt_from_md > :last-child {
 margin-bottom: 0;
 }
-#tobbeiigfg .gt_row {
+#slermefhxq .gt_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -3966,7 +3969,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 overflow-x: hidden;
 }
-#tobbeiigfg .gt_stub {
+#slermefhxq .gt_stub {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -3978,7 +3981,7 @@ border-right-color: #D3D3D3;
 padding-left: 5px;
 padding-right: 5px;
 }
-#tobbeiigfg .gt_stub_row_group {
+#slermefhxq .gt_stub_row_group {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -3991,13 +3994,13 @@ padding-left: 5px;
 padding-right: 5px;
 vertical-align: top;
 }
-#tobbeiigfg .gt_row_group_first td {
+#slermefhxq .gt_row_group_first td {
 border-top-width: 2px;
 }
-#tobbeiigfg .gt_row_group_first th {
+#slermefhxq .gt_row_group_first th {
 border-top-width: 2px;
 }
-#tobbeiigfg .gt_summary_row {
+#slermefhxq .gt_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -4006,14 +4009,14 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#tobbeiigfg .gt_first_summary_row {
+#slermefhxq .gt_first_summary_row {
 border-top-style: solid;
 border-top-color: #D3D3D3;
 }
-#tobbeiigfg .gt_first_summary_row.thick {
+#slermefhxq .gt_first_summary_row.thick {
 border-top-width: 2px;
 }
-#tobbeiigfg .gt_last_summary_row {
+#slermefhxq .gt_last_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -4022,7 +4025,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#tobbeiigfg .gt_grand_summary_row {
+#slermefhxq .gt_grand_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -4031,7 +4034,7 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#tobbeiigfg .gt_first_grand_summary_row {
+#slermefhxq .gt_first_grand_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -4040,7 +4043,7 @@ border-top-style: double;
 border-top-width: 6px;
 border-top-color: #D3D3D3;
 }
-#tobbeiigfg .gt_last_grand_summary_row_top {
+#slermefhxq .gt_last_grand_summary_row_top {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -4049,10 +4052,10 @@ border-bottom-style: double;
 border-bottom-width: 6px;
 border-bottom-color: #D3D3D3;
 }
-#tobbeiigfg .gt_striped {
+#slermefhxq .gt_striped {
 background-color: rgba(128, 128, 128, 0.05);
 }
-#tobbeiigfg .gt_table_body {
+#slermefhxq .gt_table_body {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -4060,7 +4063,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#tobbeiigfg .gt_footnotes {
+#slermefhxq .gt_footnotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -4073,7 +4076,7 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#tobbeiigfg .gt_footnote {
+#slermefhxq .gt_footnote {
 margin: 0px;
 font-size: 90%;
 padding-top: 4px;
@@ -4081,7 +4084,7 @@ padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#tobbeiigfg .gt_sourcenotes {
+#slermefhxq .gt_sourcenotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -4094,57 +4097,57 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#tobbeiigfg .gt_sourcenote {
+#slermefhxq .gt_sourcenote {
 font-size: 90%;
 padding-top: 4px;
 padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#tobbeiigfg .gt_left {
+#slermefhxq .gt_left {
 text-align: left;
 }
-#tobbeiigfg .gt_center {
+#slermefhxq .gt_center {
 text-align: center;
 }
-#tobbeiigfg .gt_right {
+#slermefhxq .gt_right {
 text-align: right;
 font-variant-numeric: tabular-nums;
 }
-#tobbeiigfg .gt_font_normal {
+#slermefhxq .gt_font_normal {
 font-weight: normal;
 }
-#tobbeiigfg .gt_font_bold {
+#slermefhxq .gt_font_bold {
 font-weight: bold;
 }
-#tobbeiigfg .gt_font_italic {
+#slermefhxq .gt_font_italic {
 font-style: italic;
 }
-#tobbeiigfg .gt_super {
+#slermefhxq .gt_super {
 font-size: 65%;
 }
-#tobbeiigfg .gt_footnote_marks {
+#slermefhxq .gt_footnote_marks {
 font-size: 75%;
 vertical-align: 0.4em;
 position: initial;
 }
-#tobbeiigfg .gt_asterisk {
+#slermefhxq .gt_asterisk {
 font-size: 100%;
 vertical-align: 0;
 }
-#tobbeiigfg .gt_indent_1 {
+#slermefhxq .gt_indent_1 {
 text-indent: 5px;
 }
-#tobbeiigfg .gt_indent_2 {
+#slermefhxq .gt_indent_2 {
 text-indent: 10px;
 }
-#tobbeiigfg .gt_indent_3 {
+#slermefhxq .gt_indent_3 {
 text-indent: 15px;
 }
-#tobbeiigfg .gt_indent_4 {
+#slermefhxq .gt_indent_4 {
 text-indent: 20px;
 }
-#tobbeiigfg .gt_indent_5 {
+#slermefhxq .gt_indent_5 {
 text-indent: 25px;
 }
 </style>

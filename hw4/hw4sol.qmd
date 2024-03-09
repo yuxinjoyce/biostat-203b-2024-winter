@@ -99,17 +99,20 @@ Connect to the `labevents` table and retrieve a subset that only contain subject
 
 ```{r}
 labevents_tble <- tbl(con_bq, "labevents") |>
-  semi_join((icustays_tble) |> select(subject_id), by = "subject_id") |>
-  filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)) |>
-  left_join((icustays_tble) |> select(subject_id, intime, stay_id),
-            by = "subject_id") |>
+  semi_join((icustays_tble) |>
+              select(subject_id), by="subject_id") |>
+  filter(itemid %in% c(50912, 50971, 50983, 50902, 
+                       50882, 51221, 51301, 50931)) |>
+  left_join((icustays_tble) |>
+            select(subject_id, intime, stay_id),
+            by="subject_id") |>
   select(subject_id, stay_id, itemid, valuenum, storetime, intime) |> 
   filter(storetime < intime) |>
   group_by(subject_id, stay_id, itemid) |>
-  slice_max(order_by = storetime, n = 1, with_ties = FALSE) |>
+  slice_max(order_by=storetime, n=1, with_ties=FALSE) |>
   ungroup() |>
   select(-storetime, -intime) |>
-  pivot_wider(names_from = itemid, values_from = valuenum) |>
+  pivot_wider(names_from=itemid, values_from=valuenum) |>
   rename(
     creatinine = '50912',
     potassium = '50971',
@@ -121,7 +124,7 @@ labevents_tble <- tbl(con_bq, "labevents") |>
     glucose = '50931'
   ) |> 
   arrange(subject_id) |>
-  print(width = Inf)
+  print(width=Inf)
 ```
 
 
@@ -131,17 +134,17 @@ Connect to `chartevents` table and retrieve a subset that only contain subjects 
 
 ```{r}
 chartevents_tble <- tbl(con_bq, "chartevents") |>
-  semi_join((icustays_tble) |> select(subject_id), by = "subject_id") |>
+  semi_join((icustays_tble) |> select(subject_id), by="subject_id") |>
   filter(itemid %in% c(220045, 220179, 220180, 223761, 220210)) |>
-  left_join((icustays_tble)|> select(subject_id, intime, outtime,  stay_id),
-            by = c("subject_id", "stay_id")) |>
+  left_join((icustays_tble) |> select(subject_id, intime, outtime, stay_id),
+            by=c("subject_id", "stay_id")) |>
   select(subject_id, stay_id, itemid, valuenum, charttime, intime, outtime) |> 
   filter(charttime >= intime & charttime <= outtime) |>
   group_by(subject_id, stay_id, itemid) |>
-  slice_min(order_by = charttime, n = 1, with_ties = FALSE) |>
+  slice_min(order_by=charttime, n=1, with_ties=FALSE) |>
   ungroup() |>
   select(-charttime, -intime, -outtime) |>
-  pivot_wider(names_from = itemid, values_from = valuenum) |>
+  pivot_wider(names_from=itemid, values_from=valuenum) |>
   rename(
     Heart_Rate = '220045',
     Non_Invasive_Blood_Pressure_systolic = '220179',
@@ -150,7 +153,8 @@ chartevents_tble <- tbl(con_bq, "chartevents") |>
     Temperature_Fahrenheit = '223761'
   ) |> 
   arrange(subject_id, stay_id) |>
-  print(width = Inf)
+  print(width=Inf)
+
 ```
 
 ### Q1.7 Put things together
@@ -159,15 +163,15 @@ This step is similar to Q7 of HW3. Using _one_ chain of pipes `|>` to perform fo
 
 ```{r}
 mimic_icu_cohort <- icustays_tble |>
-  left_join(tbl(con_bq, "patients"), by = "subject_id") |>
-  mutate(age_intime = year(intime)-anchor_year + anchor_age) |>
+  left_join(tbl(con_bq, "patients"), by="subject_id") |>
+  mutate(age_intime = year(intime) - anchor_year + anchor_age) |>
   filter(age_intime >= 18) |>
-  left_join(tbl(con_bq, "admissions"), by = c("subject_id","hadm_id")) |>
-  left_join(labevents_tble, by = c("subject_id","stay_id")) |>
-  left_join(chartevents_tble, by = c("subject_id","stay_id")) |>
+  left_join(tbl(con_bq, "admissions"), by=c("subject_id", "hadm_id")) |>
+  left_join(labevents_tble, by=c("subject_id", "stay_id")) |>
+  left_join(chartevents_tble, by=c("subject_id", "stay_id")) |>
   arrange(subject_id, hadm_id) |>
   collect() |>
-  print(width = Inf)
+  print(width=Inf)
 ```
 
 ### Q1.8 Preprocessing
@@ -193,16 +197,15 @@ mimic_icu_cohort <- mimic_icu_cohort |>
     across(all_of(c("first_careunit", "last_careunit", "admission_type", "admission_location", "discharge_location")), 
            ~fct_lump(.x, 4, other_level = "Other")),
     los_long = los >= 2
-  ) |>
-  print(width = Inf)
-
+  ) |> 
+  print(width=Inf)
 ```
 
 
 
 ```{r}
 mimic_icu_cohort |> 
-select(c(4,5,8,9,13,14,18,20:25,28:42)) |>
+  select(c(4, 5, 8, 9, 13, 14, 18, 20:25, 28:42)) |> 
   tbl_summary(by = los_long)
 ```
 
