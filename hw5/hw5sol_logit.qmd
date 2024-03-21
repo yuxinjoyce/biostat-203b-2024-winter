@@ -31,8 +31,12 @@ library(ranger)
 library(ggplot2)
 library(tune)
 library(finetune)
+library(doParallel)
 ```
 
+```{r}
+registerDoParallel(cores = 6)
+```
 
 ```{r}
 set.seed(203)
@@ -125,17 +129,18 @@ folds
 ```
 
 ```{r}
-(logit_fit <- logit_wf |>
+logit_fit <- logit_wf |>
   tune_grid(
     resamples = folds,
     grid = param_grid1,
-    metrics = metric_set(roc_auc, accuracy)
-    )) |>
-  system.time()
+    metrics = metric_set(roc_auc, accuracy),
+    control = control_stack_grid()
+    )
 ```
 
 ```{r}
 logit_fit
+saveRDS(logit_fit, "logit_fit.rds")
 ```
 
 ```{r}
@@ -149,6 +154,7 @@ logit_fit |>
   labs(x = "Penalty", y = "CV AUC") +
   scale_x_log10()
 ```
+
 
 ```{r}
 logit_fit |>
