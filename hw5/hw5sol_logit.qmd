@@ -32,15 +32,16 @@ library(ggplot2)
 library(tune)
 library(finetune)
 library(doParallel)
+library(stacks)
 ```
 
 ```{r}
-registerDoParallel(cores = 6)
+registerDoParallel(cores = 4)
 ```
 
 ```{r}
 set.seed(203)
-mimiciv_icu_cohort <- readRDS("mimic_icu_cohort.rds")
+mimiciv_icu_cohort <- readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")
 
 # sort
 mimiciv_icu_cohort <- mimiciv_icu_cohort |>
@@ -68,6 +69,10 @@ mimiciv_icu_cohort |>tbl_summary(by = los_long)
 
 3. Train and tune the models using the training set.
 
+### Logistic regression
+
+#### Initial split into test and non-test sets
+
 ```{r}
 mimic_other <- training(data_split)
 dim(mimic_other)
@@ -76,10 +81,9 @@ mimic_test <- testing(data_split)
 dim(mimic_test)
 ```
 
+#### Recipe
 
-
-### Logistic regression
-
+There are missing values in marital_status, the last lab measurements and the first vital measurements. Since missing proportion is not high, we will use simple mean (for numerical feature measurements) and mode (for categorical feature marital_status) imputation.
 
 ```{r}
 logit_recipe <- 
@@ -87,13 +91,17 @@ logit_recipe <-
     los_long ~ ., 
     data = mimic_other
   ) |>
+  # mean imputation for numerical features
   step_impute_mean(9:21) |>
+  # mode imputation for marital_status
   step_impute_mode(marital_status) |>
   step_dummy(all_nominal_predictors()) |>
   step_zv(all_numeric_predictors()) |> 
   step_normalize(all_numeric_predictors()) |>
   print()
 ```
+
+#### Model
 
 ```{r}
 logit_mod <- 
@@ -104,6 +112,7 @@ logit_mod <-
   set_engine("glmnet", standardize = FALSE) |>
   print()
 ```
+#### Workflow
 
 ```{r}
 logit_wf <- workflow() |>
@@ -111,6 +120,7 @@ logit_wf <- workflow() |>
   add_model(logit_mod) |>
   print()
 ```
+#### Tune grid
 
 ```{r}
 param_grid1 <- grid_regular(
@@ -121,13 +131,16 @@ param_grid1 <- grid_regular(
   print()
 ```
 
+#### Cross-validation
+
+Set cross-validation partitions
 ```{r}
 set.seed(203)
-
 folds <- vfold_cv(mimic_other, v = 5)
 folds
 ```
 
+Fit cross-validation
 ```{r}
 logit_fit <- logit_wf |>
   tune_grid(
@@ -143,9 +156,11 @@ logit_fit
 saveRDS(logit_fit, "logit_fit.rds")
 ```
 
+Visualize CV results:
+
 ```{r}
 logit_fit |>
-  # aggregate metrics from K folds
+  # Aggregate metrics from K folds
   collect_metrics() |>
   print(width = Inf) |>
   filter(.metric == "roc_auc") |>
@@ -155,12 +170,11 @@ logit_fit |>
   scale_x_log10()
 ```
 
-
 ```{r}
 logit_fit |>
   show_best("roc_auc")
 ```
-
+select the best model based on the best roc_auc.
 
 ```{r}
 best_logit <- logit_fit |>
@@ -168,23 +182,41 @@ best_logit <- logit_fit |>
 best_logit
 ```
 
+#### Finalize the workflow
+
 ```{r}
-final_wf1 <- logit_wf |>
+final_wf <- logit_wf |>
   finalize_workflow(best_logit)
-final_wf1
+final_wf
 ```
 
 ```{r}
-final_fit1 <- 
-  final_wf1 |>
+final_fit <- 
+  final_wf |>
   last_fit(data_split)
-final_fit1
+final_fit
 ```
 
 ```{r}
-final_fit1 |> 
+final_fit |> 
   collect_metrics()
 ```
+```{r}
+library(rpart.plot)
+final_logit<- extract_workflow(final_fit)
+final_logit
+```
 
+```{r}
+library(vip)
+final_logit %>% 
+  extract_fit_parsnip() %>% 
+  vip()
+```
 
-4. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each machine learning algorithm and the model stacking. Interpret the results. What are the most important features in predicting long ICU stays? How do the models compare in terms of performance and interpretability?
+Conclusion:
+
+The accuracy is approximately 0.579 and the area under ROC curve is approximately 0.606 for the logistic regression workflow. The 0.579 of accuracy tells us that the model correctly predicts whether a patient will have a long ICU stay 57.88% of the time. The 0.606 of ROC tells us the model is slightly better than random chance but not by a wide margin, suggesting that it might not perform well in more complex scenarios.
+
+Features like vital signs (heart rate, respiratory rate), lab results (hematocrit, white blood cells), and patient age are crucial in clinical settings for predicting patient outcomes.
+
