@@ -34,7 +34,7 @@ library(finetune)
 library(doParallel)
 ```
 ```{r}
-registerDoParallel(cores = 6)
+registerDoParallel(cores = 4)
 ```
 
 ```{r}
@@ -43,7 +43,8 @@ mimiciv_icu_cohort <- readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")
 # sort
 mimiciv_icu_cohort <- mimiciv_icu_cohort |>
   arrange(subject_id, hadm_id, stay_id) |>
-  select(insurance, admission_type, admission_location, first_careunit, age_intime, gender,race,marital_status, 29:42 ) |>
+  select(insurance, admission_type, admission_location,
+         first_careunit, age_intime, gender, race, marital_status, 29:42 ) |>
   mutate(los_long = as.factor(los_long)) |>
   print(width = Inf)
 
@@ -60,7 +61,7 @@ data_split <- initial_split(
 ```
 
 ```{r}
-mimiciv_icu_cohort |>tbl_summary(by = los_long) 
+mimiciv_icu_cohort |> tbl_summary(by = los_long) 
 
 ```
 
@@ -194,6 +195,6 @@ final_tree %>%
   extract_fit_parsnip() %>% 
   vip()
 ```
+The model has an AUC of 0.65 and an accuracy of 0.61 for the test data. The most important features in predicting long ICU stays are `Temperature_Fahrenheit`.
 
 
-4. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each machine learning algorithm and the model stacking. Interpret the results. What are the most important features in predicting long ICU stays? How do the models compare in terms of performance and interpretability?
