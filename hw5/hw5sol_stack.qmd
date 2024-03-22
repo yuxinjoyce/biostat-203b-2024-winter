@@ -47,7 +47,7 @@ mimiciv_icu_cohort <- readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")
 mimiciv_icu_cohort <- mimiciv_icu_cohort |>
   arrange(subject_id, hadm_id, stay_id) |>
   select(insurance, admission_type, admission_location, 
-         first_careunit, age_intime, gender,race,marital_status, 29:42 ) |>
+         first_careunit, age_intime, gender, race, marital_status, 29:42 ) |>
   mutate(los_long = as.factor(los_long)) |>
   print(width = Inf)
 
@@ -64,12 +64,14 @@ data_split <- initial_split(
 ```
 
 ```{r}
-mimiciv_icu_cohort |>tbl_summary(by = los_long) 
+mimiciv_icu_cohort |> tbl_summary(by = los_long) 
 ```
 
 
 
 3. Train and tune the models using the training set.
+
+### Model stacking
 
 ```{r}
 mimic_other <- training(data_split)
@@ -88,15 +90,16 @@ folds
 
 
 ```{r}
+#| eval: false
 logit_fit <- readRDS("logit_fit.rds")
 rf_fit <- readRDS("rf_fit.rds")
 gb_fit <- readRDS("gb_fit.rds")
-
 ```
 
 
 
 ```{r}
+#| eval: false
 mimic_model_st <- 
   # initialize the stack
   stacks() |>
@@ -112,6 +115,10 @@ mimic_model_st <-
   # fit the candidates with nonzero stacking coefficients
   fit_members()
 saveRDS(mimic_model_st, "mimic_model_st.rds")
+```
+
+```{r}
+mimic_model_st <- readRDS("mimic_model_st.rds")
 ```
 
 ```{r}
@@ -170,4 +177,33 @@ map(
   pivot_longer(c(everything(), -los_long))
 ```
 
-4. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each machine learning algorithm and the model stacking. Interpret the results. What are the most important features in predicting long ICU stays? How do the models compare in terms of performance and interpretability?
+### Summary
+Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each machine learning algorithm and the model stacking. Interpret the results. What are the most important features in predicting long ICU stays? How do the models compare in terms of performance and interpretability?
+
+
+**Model Performance** <br>
+The models' performance metrics on the test set are as follows:
+
+| Method | AUC | Accuracy |
+|:------:|:------:|:------:|:------:|
+| Logistic Regression |0.606 | 0.579| |
+| Random Forest |0.645 | 0.603	| |
+| XGBoost |0.649 |0.606 | |
+| Stacked Model |0.657 | | |
+
+The stacked model exhibits the highest AUC, indicating a slightly better performance in distinguishing between patients with longer and shorter ICU stays. The AUC values suggest that Random Forest, XGBoost and the stacked model are generally more effective than the logistic regression model. However, the accuracy of all models is quite similar, with only slight variations.
+
+**Feature Importance** <br>
+Across the three models, vital signs like systolic blood pressure and heart rate are consistently important. The white blood cell count and hematocrit levels are important laboratory results. Moreover, non-clinical features like first care unit and patient age are also highlighted, indicating that the initial severity and patient demographics significantly impact the length of the ICU stay. These insights show that a combination of clinical vitals, laboratory results, and initial care details provides a comprehensive view of the patient's condition and helps predict ICU stay duration effectively. 
+
+**Model Interpretability ** <br>
+Logistic Regression offers the highest interpretability since it provides direct relationships between features and the outcome. Random Forest and XGBoost offer some interpretability through feature importance but are inherently more complex. The stacked model, while potentially offering the best performance, is the least interpretable due to the combination of multiple models.
+
+**Trade-off between Performance and Interpretability** <br>
+In conclusion, while the Stacked Model slightly outperforms the other models in terms of AUC and accuracy, this comes at the expense of interpretability. The choice between these models should be guided by the trade-off between the need for predictive accuracy and the requirement for model transparency.
+
+
+
+
+
+
