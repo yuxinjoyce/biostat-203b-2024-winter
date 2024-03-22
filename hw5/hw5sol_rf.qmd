@@ -36,11 +36,12 @@ library(finetune)
 
 ```{r}
 set.seed(203)
-mimiciv_icu_cohort <- readRDS("mimic_icu_cohort.rds")
+mimiciv_icu_cohort <- readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")
 # sort
 mimiciv_icu_cohort <- mimiciv_icu_cohort |>
   arrange(subject_id, hadm_id, stay_id) |>
-  select(insurance, admission_type, admission_location, first_careunit, age_intime, gender,race,marital_status, 29:42 ) |>
+  select(insurance, admission_type, admission_location,
+         first_careunit, age_intime, gender, race, marital_status, 29:42 ) |>
   mutate(los_long = as.factor(los_long)) |>
   print(width = Inf)
 
@@ -48,7 +49,6 @@ attach(mimiciv_icu_cohort)
 ```
 
 ```{r}
-
 data_split <- initial_split(
   mimiciv_icu_cohort, 
   # stratify by los_long
@@ -59,12 +59,9 @@ data_split <- initial_split(
 
 ```{r}
 mimiciv_icu_cohort |>tbl_summary(by = los_long) 
-
 ```
 
-
-
-3. Train and tune the models using the training set.
+Train and tune the models using the training set.
 
 ```{r}
 mimic_other <- training(data_split)
@@ -84,18 +81,21 @@ folds
 
 ### Random forest
 
+#### Recipe
+
 ```{r}
 rf_recipe <- 
   recipe(
     los_long ~ ., 
     data = mimic_other
   ) |>
-   step_impute_mean(9:21) |>
+  step_impute_mean(9:21) |>
   step_impute_mode(marital_status) |>
   step_zv(all_numeric_predictors()) |>
   print()
 ```
 
+#### Model
 
 ```{r}
 rf_mod <- 
@@ -104,10 +104,11 @@ rf_mod <-
     mtry = tune(),
     trees = tune()
   ) |> 
-  set_engine("ranger")
+  set_engine("ranger", importance = "impurity") 
 rf_mod
-
 ```
+
+#### Workflow
 
 ```{r}
 rf_wf <- workflow() |>
@@ -116,22 +117,33 @@ rf_wf <- workflow() |>
 rf_wf
 ```
 
+#### Tuning
+
 ```{r}
-param_grid<- grid_regular(
-  trees(range = c(500,1000)), 
+param_grid <- grid_regular(
+  trees(range = c(500L, 1000L)), 
   mtry(range = c(1L, 5L)),
   levels = c(5, 5)
   )
 param_grid
 ```
 
+#### Cross-validation
+
 ```{r}
+#| eval: false
 rf_fit <- rf_wf |>
   tune_grid(
     resamples = folds,
     grid = param_grid,
-    metrics = metric_set(roc_auc, accuracy)
+    metrics = metric_set(roc_auc, accuracy), 
+    control = control_stack_grid()
     )
+saveRDS(rf_fit, "rf_fit.rds")
+```
+
+```{r}
+rf_fit <- readRDS("rf_fit.rds")
 rf_fit
 ```
 
@@ -158,24 +170,40 @@ best_rf <- rf_fit |>
 best_rf
 ```
 
+#### Finalize the workflow
+
 ```{r}
 # Final workflow
-final_wf <- rf_wf |>
+final_wf_rf <- rf_wf |>
   finalize_workflow(best_rf)
-final_wf
+final_wf_rf
 ```
 
 ```{r}
-final_fit <- 
-  final_wf |>
+final_fit_rf <- 
+  final_wf_rf |>
   last_fit(data_split)
-final_fit
+final_fit_rf
 ```
 
-
 ```{r}
-final_fit |> 
+final_fit_rf |> 
   collect_metrics()
 ```
 
-4. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each machine learning algorithm and the model stacking. Interpret the results. What are the most important features in predicting long ICU stays? How do the models compare in terms of performance and interpretability?
+#### Visualize the final model
+
+```{r}
+library(rpart.plot)
+final_tree <- extract_workflow(final_fit_rf)
+final_tree
+```
+
+```{r}
+library(vip)
+
+final_tree %>% 
+  extract_fit_parsnip() %>% 
+  vip()
+```
+The model has an ROC of 0.65 and an accuracy of 0.60 for the test data. Non_Invasive_Blood_Pressure_systotic seems to be the most important feature in the model.
