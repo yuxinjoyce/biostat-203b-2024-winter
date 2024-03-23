@@ -151,6 +151,22 @@ yardstick::roc_auc(
   contains(".pred_FALSE")
   )
 ```
+```{r}
+threshold <- 0.5
+predicted_labels <- ifelse(mimic_pred$.pred_TRUE > threshold, "TRUE", "FALSE")
+
+# Convert the logical vector to a factor with explicit levels
+predicted_factors <- factor(predicted_labels, levels = c("TRUE", "FALSE"))
+
+# Ensure that the truth is also a factor with the same levels
+truth_factors <- factor(mimic_test$los_long, levels = c("TRUE", "FALSE"))
+
+# Calculate accuracy using accuracy_vec()
+acc <- accuracy_vec(truth = truth_factors, estimate = predicted_factors)
+
+# Print the accuracy
+print(acc)
+```
 
 ```{r}
 mimic_pred <-
@@ -189,7 +205,7 @@ The models' performance metrics on the test set are as follows:
 | Logistic Regression |0.606 | 0.579| |
 | Random Forest |0.645 | 0.603	| |
 | XGBoost |0.649 |0.606 | |
-| Stacked Model |0.657 | | |
+| Stacked Model |0.657 |0.611 | |
 
 The stacked model exhibits the highest AUC, indicating a slightly better performance in distinguishing between patients with longer and shorter ICU stays. The AUC values suggest that Random Forest, XGBoost and the stacked model are generally more effective than the logistic regression model. However, the accuracy of all models is quite similar, with only slight variations.
 

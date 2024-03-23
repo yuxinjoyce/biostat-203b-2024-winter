@@ -64,7 +64,7 @@ data_split <- initial_split(
 ```
 
 ```{r}
-mimiciv_icu_cohort |>tbl_summary(by = los_long) 
+mimiciv_icu_cohort |> tbl_summary(by = los_long) 
 ```
 
 3. Train and tune the models using the training set.
@@ -149,10 +149,10 @@ logit_fit <- logit_wf |>
     metrics = metric_set(roc_auc, accuracy),
     control = control_stack_grid()
     )
+logit_fit
 ```
 
 ```{r}
-logit_fit
 saveRDS(logit_fit, "logit_fit.rds")
 ```
 
@@ -216,7 +216,7 @@ final_logit %>%
 
 Conclusion:
 
-The accuracy is approximately 0.579 and the area under ROC curve is approximately 0.606 for the logistic regression workflow. The 0.579 of accuracy tells us that the model correctly predicts whether a patient will have a long ICU stay 57.88% of the time. The 0.606 of ROC tells us the model is slightly better than random chance but not by a wide margin, suggesting that it might not perform well in more complex scenarios.
+The accuracy is approximately 0.579 and the area under ROC curve is approximately 0.606 for the logistic regression workflow. 
 
-Features like vital signs (heart rate, respiratory rate), lab results (hematocrit, white blood cells), and patient age are crucial in clinical settings for predicting patient outcomes.
+Features like first care unit, heart rate and admission information are crucial in clinical settings for predicting patient outcomes.
 

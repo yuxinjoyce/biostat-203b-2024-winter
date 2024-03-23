@@ -3105,7 +3105,7 @@ vertical-align: -.125em;
 ✖ dplyr::lag()      masks stats::lag()
 ✖ yardstick::spec() masks readr::spec()
 ✖ recipes::step()   masks stats::step()
-• Learn how to get started at https://www.tidymodels.org/start/</code></pre>
+• Search for functions across packages at https://www.tidymodels.org/find/</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -3243,7 +3243,7 @@ Loading required package: parallel</code></pre>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>mimiciv_icu_cohort <span class="sc">|&gt;</span><span class="fu">tbl_summary</span>(<span class="at">by =</span> los_long) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>mimiciv_icu_cohort <span class="sc">|&gt;</span> <span class="fu">tbl_summary</span>(<span class="at">by =</span> los_long) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <div id="tgujwmobzk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
@@ -4045,8 +4045,6 @@ Computational engine: glmnet </code></pre>
 this was not intentional, please set the control setting ℹ `save_workflow =
 FALSE`.</code></pre>
 </div>
-</div>
-<div class="cell">
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>logit_fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># Tuning results
@@ -4060,6 +4058,8 @@ FALSE`.</code></pre>
 4 &lt;split [29272/7318]&gt; Fold4 &lt;tibble [1,000 × 6]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    
 5 &lt;split [29272/7318]&gt; Fold5 &lt;tibble [1,000 × 6]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </code></pre>
 </div>
+</div>
+<div class="cell">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(logit_fit, <span class="st">&quot;logit_fit.rds&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Visualize CV results:</p>
@@ -4295,8 +4295,8 @@ Attaching package: &#39;vip&#39;</code></pre>
 </div>
 </div>
 <p>Conclusion:</p>
-<p>The accuracy is approximately 0.579 and the area under ROC curve is approximately 0.606 for the logistic regression workflow. The 0.579 of accuracy tells us that the model correctly predicts whether a patient will have a long ICU stay 57.88% of the time. The 0.606 of ROC tells us the model is slightly better than random chance but not by a wide margin, suggesting that it might not perform well in more complex scenarios.</p>
-<p>Features like vital signs (heart rate, respiratory rate), lab results (hematocrit, white blood cells), and patient age are crucial in clinical settings for predicting patient outcomes.</p>
+<p>The accuracy is approximately 0.579 and the area under ROC curve is approximately 0.606 for the logistic regression workflow.</p>
+<p>Features like first care unit, heart rate and admission information are crucial in clinical settings for predicting patient outcomes.</p>
 </section>
 </section>
 </section>
