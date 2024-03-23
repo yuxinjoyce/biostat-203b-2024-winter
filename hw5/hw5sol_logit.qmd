@@ -1,0 +1,222 @@
+---
+title: "Biostat 203B Homework 5"
+subtitle: Due Mar 22 @ 11:59PM
+author: "Yuxin Zhang 406328706"
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: false
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+---
+
+## Predicting ICU duration
+
+Using the ICU cohort `mimiciv_icu_cohort.rds` you built in Homework 4, develop at least three machine learning approaches (logistic regression with enet regularization, random forest, boosting, SVM, MLP, etc) plus a model stacking approach for predicting whether a patient's ICU stay will be longer than 2 days. You should use the `los_long` variable as the outcome. You algorithms can use patient demographic information (gender, age at ICU `intime`, marital status, race), ICU admission information (first care unit), the last lab measurements before the ICU stay, and first vital measurements during ICU stay as features. You are welcome to use any feature engineering techniques you think are appropriate; but make sure to not use features that are not available at an ICU stay's `intime`. For instance, `last_careunit` cannot be used in your algorithms. 
+
+1. Data preprocessing and feature engineering.
+
+2. Partition data into 50% training set and 50% test set. Stratify partitioning according to `los_long`. For grading purpose, sort the data by `subject_id`, `hadm_id`, and `stay_id` and use the seed `203` for the initial data split. Below is the sample code.
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(gtsummary)
+library(GGally)
+library(gtsummary)
+library(ranger)
+library(ggplot2)
+library(tune)
+library(finetune)
+library(doParallel)
+library(stacks)
+```
+
+```{r}
+registerDoParallel(cores = 4)
+```
+
+```{r}
+set.seed(203)
+mimiciv_icu_cohort <- readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")
+
+# sort
+mimiciv_icu_cohort <- mimiciv_icu_cohort |>
+  arrange(subject_id, hadm_id, stay_id) |>
+  select(insurance, admission_type, admission_location, first_careunit, 
+         age_intime, gender, race, marital_status, 29:42 ) |>
+  mutate(los_long = as.factor(los_long)) |>
+  print(width = Inf)
+
+attach(mimiciv_icu_cohort)
+```
+
+```{r}
+data_split <- initial_split(
+  mimiciv_icu_cohort, 
+  # stratify by los_long
+  strata = "los_long", 
+  prop = 0.5
+  )
+```
+
+```{r}
+mimiciv_icu_cohort |> tbl_summary(by = los_long) 
+```
+
+3. Train and tune the models using the training set.
+
+### Logistic regression
+
+#### Initial split into test and non-test sets
+
+```{r}
+mimic_other <- training(data_split)
+dim(mimic_other)
+
+mimic_test <- testing(data_split)
+dim(mimic_test)
+```
+
+#### Recipe
+
+There are missing values in marital_status, the last lab measurements and the first vital measurements. Since missing proportion is not high, we will use simple mean (for numerical feature measurements) and mode (for categorical feature marital_status) imputation.
+
+```{r}
+logit_recipe <- 
+  recipe(
+    los_long ~ ., 
+    data = mimic_other
+  ) |>
+  # mean imputation for numerical features
+  step_impute_mean(9:21) |>
+  # mode imputation for marital_status
+  step_impute_mode(marital_status) |>
+  step_dummy(all_nominal_predictors()) |>
+  step_zv(all_numeric_predictors()) |> 
+  step_normalize(all_numeric_predictors()) |>
+  print()
+```
+
+#### Model
+
+```{r}
+logit_mod <- 
+  logistic_reg(
+    penalty = tune(), 
+    mixture = tune()
+  ) |> 
+  set_engine("glmnet", standardize = FALSE) |>
+  print()
+```
+#### Workflow
+
+```{r}
+logit_wf <- workflow() |>
+  add_recipe(logit_recipe) |>
+  add_model(logit_mod) |>
+  print()
+```
+#### Tune grid
+
+```{r}
+param_grid1 <- grid_regular(
+  penalty(range = c(-6, 3)), 
+  mixture(),
+  levels = c(100, 5)
+  ) |>
+  print()
+```
+
+#### Cross-validation
+
+Set cross-validation partitions
+```{r}
+set.seed(203)
+folds <- vfold_cv(mimic_other, v = 5)
+folds
+```
+
+Fit cross-validation
+```{r}
+logit_fit <- logit_wf |>
+  tune_grid(
+    resamples = folds,
+    grid = param_grid1,
+    metrics = metric_set(roc_auc, accuracy),
+    control = control_stack_grid()
+    )
+logit_fit
+```
+
+```{r}
+saveRDS(logit_fit, "logit_fit.rds")
+```
+
+Visualize CV results:
+
+```{r}
+logit_fit |>
+  # Aggregate metrics from K folds
+  collect_metrics() |>
+  print(width = Inf) |>
+  filter(.metric == "roc_auc") |>
+  ggplot(mapping = aes(x = penalty, y = mean, color = factor(mixture))) +
+  geom_point() +
+  labs(x = "Penalty", y = "CV AUC") +
+  scale_x_log10()
+```
+
+```{r}
+logit_fit |>
+  show_best("roc_auc")
+```
+select the best model based on the best roc_auc.
+
+```{r}
+best_logit <- logit_fit |>
+  select_best("roc_auc")
+best_logit
+```
+
+#### Finalize the workflow
+
+```{r}
+final_wf <- logit_wf |>
+  finalize_workflow(best_logit)
+final_wf
+```
+
+```{r}
+final_fit <- 
+  final_wf |>
+  last_fit(data_split)
+final_fit
+```
+
+```{r}
+final_fit |> 
+  collect_metrics()
+```
+```{r}
+library(rpart.plot)
+final_logit<- extract_workflow(final_fit)
+final_logit
+```
+
+```{r}
+library(vip)
+final_logit %>% 
+  extract_fit_parsnip() %>% 
+  vip()
+```
+
+Conclusion:
+
+The accuracy is approximately 0.579 and the area under ROC curve is approximately 0.606 for the logistic regression workflow. 
+
+Features like first care unit, heart rate and admission information are crucial in clinical settings for predicting patient outcomes.
+

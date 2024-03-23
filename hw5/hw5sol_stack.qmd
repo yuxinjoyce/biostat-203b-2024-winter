@@ -1,0 +1,225 @@
+---
+title: "Biostat 203B Homework 5"
+subtitle: Due Mar 22 @ 11:59PM
+author: "Yuxin Zhang 406328706"
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: false
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+---
+
+## Predicting ICU duration
+
+Using the ICU cohort `mimiciv_icu_cohort.rds` you built in Homework 4, develop at least three machine learning approaches (logistic regression with enet regularization, random forest, boosting, SVM, MLP, etc) plus a model stacking approach for predicting whether a patient's ICU stay will be longer than 2 days. You should use the `los_long` variable as the outcome. You algorithms can use patient demographic information (gender, age at ICU `intime`, marital status, race), ICU admission information (first care unit), the last lab measurements before the ICU stay, and first vital measurements during ICU stay as features. You are welcome to use any feature engineering techniques you think are appropriate; but make sure to not use features that are not available at an ICU stay's `intime`. For instance, `last_careunit` cannot be used in your algorithms. 
+
+1. Data preprocessing and feature engineering.
+
+2. Partition data into 50% training set and 50% test set. Stratify partitioning according to `los_long`. For grading purpose, sort the data by `subject_id`, `hadm_id`, and `stay_id` and use the seed `203` for the initial data split. Below is the sample code.
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(gtsummary)
+library(GGally)
+library(gtsummary)
+library(ranger)
+library(ggplot2)
+library(tune)
+library(finetune)
+library(keras)
+library(stacks)
+library(doParallel)
+```
+
+```{r}
+registerDoParallel(cores = 5)
+```
+
+```{r}
+set.seed(203)
+mimiciv_icu_cohort <- readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")
+# sort
+mimiciv_icu_cohort <- mimiciv_icu_cohort |>
+  arrange(subject_id, hadm_id, stay_id) |>
+  select(insurance, admission_type, admission_location, 
+         first_careunit, age_intime, gender, race, marital_status, 29:42 ) |>
+  mutate(los_long = as.factor(los_long)) |>
+  print(width = Inf)
+
+attach(mimiciv_icu_cohort)
+```
+
+```{r}
+data_split <- initial_split(
+  mimiciv_icu_cohort, 
+  # stratify by los_long
+  strata = "los_long", 
+  prop = 0.5
+  )
+```
+
+```{r}
+mimiciv_icu_cohort |> tbl_summary(by = los_long) 
+```
+
+
+
+3. Train and tune the models using the training set.
+
+### Model stacking
+
+```{r}
+mimic_other <- training(data_split)
+dim(mimic_other)
+
+mimic_test <- testing(data_split)
+dim(mimic_test)
+```
+
+```{r}
+set.seed(203)
+
+folds <- vfold_cv(mimic_other, v = 5)
+folds
+```
+
+
+```{r}
+#| eval: false
+logit_fit <- readRDS("logit_fit.rds")
+rf_fit <- readRDS("rf_fit.rds")
+gb_fit <- readRDS("gb_fit.rds")
+```
+
+
+
+```{r}
+#| eval: false
+mimic_model_st <- 
+  # initialize the stack
+  stacks() |>
+  # add candidate members
+  add_candidates(logit_fit) |>
+  add_candidates(rf_fit) |>
+  add_candidates(gb_fit) |>
+  # determine how to combine their predictions
+  blend_predictions(
+    penalty = 10^(-6:2),
+    metrics = c("roc_auc")
+    ) |>
+  # fit the candidates with nonzero stacking coefficients
+  fit_members()
+saveRDS(mimic_model_st, "mimic_model_st.rds")
+```
+
+```{r}
+mimic_model_st <- readRDS("mimic_model_st.rds")
+```
+
+```{r}
+autoplot(mimic_model_st)
+```
+
+```{r}
+autoplot(mimic_model_st, type = "members")
+```
+
+```{r}
+autoplot(mimic_model_st, type = "weights")
+```
+
+```{r}
+collect_parameters(mimic_model_st, "rf_fit")
+```
+
+```{r}
+# final classification
+mimic_pred <- mimic_test %>%
+  bind_cols(predict(mimic_model_st, ., type = "prob")) %>%
+  print(width = Inf)
+```
+
+```{r}
+yardstick::roc_auc(
+  mimic_pred,
+  truth = los_long,
+  contains(".pred_FALSE")
+  )
+```
+```{r}
+threshold <- 0.5
+predicted_labels <- ifelse(mimic_pred$.pred_TRUE > threshold, "TRUE", "FALSE")
+
+# Convert the logical vector to a factor with explicit levels
+predicted_factors <- factor(predicted_labels, levels = c("TRUE", "FALSE"))
+
+# Ensure that the truth is also a factor with the same levels
+truth_factors <- factor(mimic_test$los_long, levels = c("TRUE", "FALSE"))
+
+# Calculate accuracy using accuracy_vec()
+acc <- accuracy_vec(truth = truth_factors, estimate = predicted_factors)
+
+# Print the accuracy
+print(acc)
+```
+
+```{r}
+mimic_pred <-
+  mimic_test |>
+  select(los_long) |>
+  bind_cols(
+    predict(
+      mimic_model_st,
+      mimic_test,
+      type = "class",
+      members = TRUE
+      )
+    ) |>
+  print(width = Inf)
+```
+
+```{r}
+map(
+  colnames(mimic_pred),
+  ~mean(mimic_pred$los_long == pull(mimic_pred, .x))
+  ) |>
+  set_names(colnames(mimic_pred)) |>
+  as_tibble() |>
+  pivot_longer(c(everything(), -los_long))
+```
+
+### Summary
+Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each machine learning algorithm and the model stacking. Interpret the results. What are the most important features in predicting long ICU stays? How do the models compare in terms of performance and interpretability?
+
+
+**Model Performance** <br>
+The models' performance metrics on the test set are as follows:
+
+| Method | AUC | Accuracy |
+|:------:|:------:|:------:|:------:|
+| Logistic Regression |0.606 | 0.579| |
+| Random Forest |0.645 | 0.603	| |
+| XGBoost |0.649 |0.606 | |
+| Stacked Model |0.657 |0.611 | |
+
+The stacked model exhibits the highest AUC, indicating a slightly better performance in distinguishing between patients with longer and shorter ICU stays. The AUC values suggest that Random Forest, XGBoost and the stacked model are generally more effective than the logistic regression model. However, the accuracy of all models is quite similar, with only slight variations.
+
+**Feature Importance** <br>
+Across the three models, vital signs like systolic blood pressure and heart rate are consistently important. The white blood cell count and hematocrit levels are important laboratory results. Moreover, non-clinical features like first care unit and patient age are also highlighted, indicating that the initial severity and patient demographics significantly impact the length of the ICU stay. These insights show that a combination of clinical vitals, laboratory results, and initial care details provides a comprehensive view of the patient's condition and helps predict ICU stay duration effectively. 
+
+**Model Interpretability ** <br>
+Logistic Regression offers the highest interpretability since it provides direct relationships between features and the outcome. Random Forest and XGBoost offer some interpretability through feature importance but are inherently more complex. The stacked model, while potentially offering the best performance, is the least interpretable due to the combination of multiple models.
+
+**Trade-off between Performance and Interpretability** <br>
+In conclusion, while the Stacked Model slightly outperforms the other models in terms of AUC and accuracy, this comes at the expense of interpretability. The choice between these models should be guided by the trade-off between the need for predictive accuracy and the requirement for model transparency.
+
+
+
+
+
+

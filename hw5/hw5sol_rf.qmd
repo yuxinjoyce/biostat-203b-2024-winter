@@ -1,0 +1,209 @@
+---
+title: "Biostat 203B Homework 5"
+subtitle: Due Mar 22 @ 11:59PM
+author: "Yuxin Zhang 406328706"
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: false
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+---
+
+## Predicting ICU duration
+
+Using the ICU cohort `mimiciv_icu_cohort.rds` you built in Homework 4, develop at least three machine learning approaches (logistic regression with enet regularization, random forest, boosting, SVM, MLP, etc) plus a model stacking approach for predicting whether a patient's ICU stay will be longer than 2 days. You should use the `los_long` variable as the outcome. You algorithms can use patient demographic information (gender, age at ICU `intime`, marital status, race), ICU admission information (first care unit), the last lab measurements before the ICU stay, and first vital measurements during ICU stay as features. You are welcome to use any feature engineering techniques you think are appropriate; but make sure to not use features that are not available at an ICU stay's `intime`. For instance, `last_careunit` cannot be used in your algorithms. 
+
+1. Data preprocessing and feature engineering.
+
+2. Partition data into 50% training set and 50% test set. Stratify partitioning according to `los_long`. For grading purpose, sort the data by `subject_id`, `hadm_id`, and `stay_id` and use the seed `203` for the initial data split. Below is the sample code.
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(gtsummary)
+library(GGally)
+library(gtsummary)
+library(ranger)
+library(ggplot2)
+library(tune)
+library(finetune)
+```
+
+
+```{r}
+set.seed(203)
+mimiciv_icu_cohort <- readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")
+# sort
+mimiciv_icu_cohort <- mimiciv_icu_cohort |>
+  arrange(subject_id, hadm_id, stay_id) |>
+  select(insurance, admission_type, admission_location,
+         first_careunit, age_intime, gender, race, marital_status, 29:42 ) |>
+  mutate(los_long = as.factor(los_long)) |>
+  print(width = Inf)
+
+attach(mimiciv_icu_cohort)
+```
+
+```{r}
+data_split <- initial_split(
+  mimiciv_icu_cohort, 
+  # stratify by los_long
+  strata = "los_long", 
+  prop = 0.5
+  )
+```
+
+```{r}
+mimiciv_icu_cohort |> tbl_summary(by = los_long) 
+```
+
+Train and tune the models using the training set.
+
+```{r}
+mimic_other <- training(data_split)
+dim(mimic_other)
+
+mimic_test <- testing(data_split)
+dim(mimic_test)
+```
+
+
+```{r}
+set.seed(203)
+
+folds <- vfold_cv(mimic_other, v = 5)
+folds
+```
+
+### Random forest
+
+#### Recipe
+
+```{r}
+rf_recipe <- 
+  recipe(
+    los_long ~ ., 
+    data = mimic_other
+  ) |>
+  step_impute_mean(9:21) |>
+  step_impute_mode(marital_status) |>
+  step_zv(all_numeric_predictors()) |>
+  print()
+```
+
+#### Model
+
+```{r}
+rf_mod <- 
+  rand_forest(
+    mode = "classification",
+    mtry = tune(),
+    trees = tune()
+  ) |> 
+  set_engine("ranger", importance = "impurity") 
+rf_mod
+```
+
+#### Workflow
+
+```{r}
+rf_wf <- workflow() |>
+  add_recipe(rf_recipe) |>
+  add_model(rf_mod)
+rf_wf
+```
+
+#### Tuning
+
+```{r}
+param_grid <- grid_regular(
+  trees(range = c(500L, 1000L)), 
+  mtry(range = c(1L, 5L)),
+  levels = c(5, 5)
+  )
+param_grid
+```
+
+#### Cross-validation
+
+```{r}
+#| eval: false
+rf_fit <- rf_wf |>
+  tune_grid(
+    resamples = folds,
+    grid = param_grid,
+    metrics = metric_set(roc_auc, accuracy), 
+    control = control_stack_grid()
+    )
+saveRDS(rf_fit, "rf_fit.rds")
+```
+
+```{r}
+rf_fit <- readRDS("rf_fit.rds")
+rf_fit
+```
+
+```{r}
+rf_fit %>%
+  collect_metrics() %>%
+  print(width = Inf) %>%
+  filter(.metric == "roc_auc") %>%
+  mutate(mtry = as.factor(mtry)) %>%
+  ggplot(mapping = aes(x = trees, y = mean, color = mtry)) +
+  # geom_point() + 
+  geom_line() + 
+  labs(x = "Num. of Trees", y = "CV AUC")
+```
+
+```{r}
+rf_fit |>
+  show_best("roc_auc")
+```
+
+```{r}
+best_rf <- rf_fit |>
+  select_best("roc_auc")
+best_rf
+```
+
+#### Finalize the workflow
+
+```{r}
+# Final workflow
+final_wf_rf <- rf_wf |>
+  finalize_workflow(best_rf)
+final_wf_rf
+```
+
+```{r}
+final_fit_rf <- 
+  final_wf_rf |>
+  last_fit(data_split)
+final_fit_rf
+```
+
+```{r}
+final_fit_rf |> 
+  collect_metrics()
+```
+
+#### Visualize the final model
+
+```{r}
+library(rpart.plot)
+final_tree <- extract_workflow(final_fit_rf)
+final_tree
+```
+
+```{r}
+library(vip)
+
+final_tree %>% 
+  extract_fit_parsnip() %>% 
+  vip()
+```
+The model has an AUC of 0.65 and an accuracy of 0.60 for the test data. `Non_Invasive_Blood_Pressure_systotic` seems to be the most important feature in the model.
