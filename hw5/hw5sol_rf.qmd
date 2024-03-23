@@ -58,7 +58,7 @@ data_split <- initial_split(
 ```
 
 ```{r}
-mimiciv_icu_cohort |>tbl_summary(by = los_long) 
+mimiciv_icu_cohort |> tbl_summary(by = los_long) 
 ```
 
 Train and tune the models using the training set.
@@ -206,4 +206,4 @@ final_tree %>%
   extract_fit_parsnip() %>% 
   vip()
 ```
-The model has an ROC of 0.65 and an accuracy of 0.60 for the test data. Non_Invasive_Blood_Pressure_systotic seems to be the most important feature in the model.
+The model has an AUC of 0.65 and an accuracy of 0.60 for the test data. `Non_Invasive_Blood_Pressure_systotic` seems to be the most important feature in the model.
